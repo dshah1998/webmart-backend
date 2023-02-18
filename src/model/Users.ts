@@ -33,6 +33,12 @@ export class Users extends BaseEntity {
   @Column('varchar', { nullable: true })
   mobileNumber!: string | null;
 
+  @Column('varchar', { length: 255, nullable: true })
+  token!: string | null;
+
+  @Column('boolean', { default: () => 'false' })
+  isEmailVerify!: boolean;
+
   @Column("text", { array: true, nullable: true })
   userType: string[];
 

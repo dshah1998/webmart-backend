@@ -32,8 +32,7 @@ export const signupValidation = {
     firstName: Joi.string().max(255).regex(new RegExp(namePattern)).required(),
     lastName: Joi.string().max(255).regex(new RegExp(namePattern)).required(),
     password: Joi.string().min(6).max(128).required(),
-    userType: Joi.string()
-      .valid(...Object.values(WebMartUserType))
+    userType: Joi.array().items(Joi.string().valid(...Object.values(WebMartUserType)).default(null))
       .required(),
   }),
 };
@@ -64,6 +63,7 @@ export const signUp =
       email,
       password: hashedPassword,
       userType: [userType],
+      token: emailToken,
     });
 
     user = await userRepository.save(user);
@@ -73,7 +73,7 @@ export const signUp =
     try {
       sendMail(user, link);
     } catch (error) {
-      console.log("error in mail sent");
+      console.error("error in mail sent");
     }
 
     if (user && user.password) user.password = "";
