@@ -1,17 +1,14 @@
-/* eslint-disable prefer-regex-literals */
-import { getRepository } from 'typeorm';
-import { Options as SMTPTransportOptions } from 'nodemailer/lib/smtp-transport';
-import nodemailer, { SentMessageInfo } from 'nodemailer';
-import Mail from 'nodemailer/lib/mailer';
-import { Auth } from 'googleapis';
+import { Options as SMTPTransportOptions } from "nodemailer/lib/smtp-transport";
+import nodemailer, { SentMessageInfo } from "nodemailer";
+import Mail from "nodemailer/lib/mailer";
+import { Auth } from "googleapis";
 
-import { EmailTemplates } from '../model/EmailTemplates';
-
-import config from '../config';
+import config from "../config";
 
 export interface MailBody {
-  to?: string | Array<string>;
+  to?: string | Array<string>;  
   subject?: string;
+  html?: string;
 }
 
 /**
@@ -28,7 +25,7 @@ export class MailService {
   private oauth2Client = new Auth.OAuth2Client({
     clientId: config.GMAIL_CLIENT_ID,
     clientSecret: config.GMAIL_CLIENT_SECRET,
-    redirectUri: 'https://developers.google.com/oauthplayground',
+    redirectUri: "https://developers.google.com/oauthplayground",
   });
 
   constructor() {
@@ -43,16 +40,22 @@ export class MailService {
    * https://nodemailer.com/about/#:~:text=SMTP%20transport%0A%20%20let-,transporter,-%3D%20nodemailer.
    */
   private async createSmtpTransport() {
-    if (config.GMAIL_CLIENT_ID && config.GMAIL_CLIENT_SECRET && config.GMAIL_REFRESH_TOKEN) {
+    if (
+      config.GMAIL_CLIENT_ID &&
+      config.GMAIL_CLIENT_SECRET &&
+      config.GMAIL_REFRESH_TOKEN
+    ) {
       try {
-        this.oauth2Client.setCredentials({ refresh_token: config.GMAIL_REFRESH_TOKEN });
+        this.oauth2Client.setCredentials({
+          refresh_token: config.GMAIL_REFRESH_TOKEN,
+        });
         const accessToken = await this.oauth2Client.getAccessToken();
 
         if (accessToken && accessToken.token) {
           const options: SMTPTransportOptions = {
-            service: 'gmail',
+            service: "gmail",
             auth: {
-              type: 'OAuth2',
+              type: "OAuth2",
               user: config.GMAIL_USER,
               clientId: config.GMAIL_CLIENT_ID,
               clientSecret: config.GMAIL_CLIENT_SECRET,
@@ -83,20 +86,12 @@ export class MailService {
     return transport;
   }
 
-  async send({
-    to,
-    subject
-  }: MailBody): Promise<SentMessageInfo> {
+  async send({ to, subject, html }: MailBody): Promise<SentMessageInfo> {
     const transport = (await this.createSmtpTransport()) || this.transport;
     if (!transport) {
       console.log(`Transport is not present to send email.`);
       throw new Error(`Transport is not present to send email.`);
     }
-
-    const emailTempRepository = getRepository(EmailTemplates);
-    // const emailTemplate = await emailTempRepository.findOne({ key: text });
-
-    const html = "Hello there!"
 
     return transport.sendMail({
       from: `Webmart <${config.GMAIL_USER}>`,
