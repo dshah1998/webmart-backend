@@ -34,7 +34,7 @@ class UpdatePasswordService {
   }
 
   public async execute(request: Request): Promise<Response> {
-    const { token, newPassword: password, userType, otp } = request;
+    const { token, newPassword: password } = request;
 
     const userRepository = getRepository(Users);
     let user;

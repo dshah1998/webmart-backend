@@ -3,7 +3,8 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 import config from '../config';
 
-const baseFolder = config.isProd ? 'dist' : 'src';
+const baseFolder = config.isProd ? '' : 'src/';
+console.log("config.isProd", config.isProd);
 
 const typeormConfig = {
   type: config.POSTGRES_CONNECTION,
@@ -16,13 +17,13 @@ const typeormConfig = {
   logging: true || ['error'], // TODO: Make ['error'] on production
   dropSchema: false, // TODO: Make true on test
   namingStrategy: new SnakeNamingStrategy(),
-  entities: [`${baseFolder}/model/*{.js,.ts}`, `${baseFolder}/model/views/*{.js,.ts}`],
-  migrations: [`${baseFolder}/database/migration/**/*{.js,.ts}`],
-  subscribers: [`${baseFolder}/database/subscriber/**/*{.js,.ts}`],
+  entities: [`${baseFolder}model/*{.js,.ts}`, `${baseFolder}model/views/*{.js,.ts}`],
+  migrations: [`${baseFolder}database/migration/**/*{.js,.ts}`],
+  subscribers: [`${baseFolder}database/subscriber/**/*{.js,.ts}`],
   cli: {
-    entitiesDir: `${baseFolder}/model`,
-    migrationsDir: `${baseFolder}/database/migration`,
-    subscribersDir: `${baseFolder}/database/subscriber`,
+    entitiesDir: `${baseFolder}model`,
+    migrationsDir: `${baseFolder}database/migration`,
+    subscribersDir: `${baseFolder}database/subscriber`,
   },
   cache: {},
 } as ConnectionOptions;

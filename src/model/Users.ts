@@ -1,10 +1,12 @@
 import {
   Column,
   Entity,
+  OneToMany,
   BaseEntity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { Address } from './Address';
 import { WebMartUserType } from '../constants';
 
 @Entity('users', { schema: 'public' })
@@ -44,4 +46,7 @@ export class Users extends BaseEntity {
 
   @Column('boolean', { default: () => 'true' })
   isActive!: boolean;
+
+  @OneToMany(() => Address, (address) => address.user)
+  address!: Address[];
 }

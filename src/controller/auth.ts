@@ -13,6 +13,7 @@ import { Users } from "../model/Users";
 
 import { WebMartUserType, Token } from "../constants";
 import config from "../config";
+import { registerSuccess } from "../database/seed/htmlTemplates/register";
 
 import {
   ITokenBase,
@@ -112,10 +113,8 @@ const sendMail = async (user: Users, link: string) => {
     link,
     text: "email_verify",
     to: user.email,
-    fullname: `${user.firstName || '' }${user.lastName || ''}`,
-    mobileNo: `${user.countryCode}${user.mobileNumber}`,
-    actor: user.userType,
-    email: user.email,
+    subject: "Registration Success | WebMart",
+    html: (registerSuccess || '').replace(new RegExp('{link}', 'g'), link || '').replace(new RegExp('{name}', 'g'), `${user.firstName || '' }${user.lastName || ''}`),
   };
   await mailService.send(mailBody);
 };
