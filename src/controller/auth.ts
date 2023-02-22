@@ -143,7 +143,7 @@ export const login =
 
     const passwordMatched = await comparePassword(password, user.password);
     if (!passwordMatched) {
-      throw new BadRequestError("Password missmatch", "PASSWORD_MISSMATCH");
+      throw new BadRequestError("Password is wrong", "PASSWORD_MISSMATCH");
     }
 
     const accessToken = await signAccessToken(user.id);
