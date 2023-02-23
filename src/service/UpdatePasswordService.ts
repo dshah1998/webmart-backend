@@ -1,7 +1,7 @@
 import { getRepository } from "typeorm";
 
 import { hashPassword } from "./password";
-import { WebMartUserType, Token } from "../constants";
+import { Token } from "../constants";
 
 import { Users } from "../model/Users";
 

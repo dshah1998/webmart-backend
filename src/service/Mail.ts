@@ -72,6 +72,10 @@ export class MailService {
     }
   }
 
+  /**
+   * This generate transport of the nodemailer.
+   * @returns transport
+   */
   private createTransport() {
     const transport = nodemailer.createTransport({
       host: 'smtp.gmail.com',
