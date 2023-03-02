@@ -59,11 +59,11 @@ export const signUp =
     const hashedPassword = await hashPassword(password);
 
     let user = userRepository.create({
+      email,
       firstName,
       lastName,
-      email,
+      userType,
       password: hashedPassword,
-      userType: [userType],
       token: emailToken,
     });
 
