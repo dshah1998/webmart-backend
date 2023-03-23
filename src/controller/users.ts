@@ -10,6 +10,7 @@ import { UsersRepository } from "../repository/Users";
 
 import { Users } from "../model/Users";
 import { WebMartUserType } from "../constants";
+import { SellerInformationRepository } from "../repository/SellerInformation";
 
 export const changePasswordValidation = {
   body: Joi.object({
@@ -103,26 +104,93 @@ export const updatePassword =
     res.json(result);
   };
 
-  export const verifyEmailValidation = {
-    body: Joi.object({
-      token: Joi.string().required(),
-    }),
-  };
-  export const verifyEmail = () => async (req: Request, res: Response): Promise<void> => {
+export const verifyEmailValidation = {
+  body: Joi.object({
+    token: Joi.string().required(),
+  }),
+};
+export const verifyEmail =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
     const {
       body: { token },
     } = req;
-  
+
     const userRepository = getCustomRepository(UsersRepository);
     const verificationDetails = await userRepository.findOne({
       where: { token: token },
     });
-  
+
     if (!verificationDetails) {
-      throw new BadRequestError('Token is invalid or expired', 'INVALID_TOKEN');
+      throw new BadRequestError("Token is invalid or expired", "INVALID_TOKEN");
     }
-  
-    await userRepository.update(verificationDetails.id, { isEmailVerify: true });
-  
+
+    await userRepository.update(verificationDetails.id, {
+      isEmailVerify: true,
+    });
     res.sendStatus(200);
+  };
+
+export const becomeSellerValidation = {
+  body: Joi.object({
+    companyRegistrationNumber: Joi.string().min(10).max(10).required(),
+    streetAddress: Joi.string().required(),
+    addressLine2: Joi.string().optional(),
+    city: Joi.string().required(),
+    state: Joi.string().required(),
+    zip: Joi.string().required(),
+    storeName: Joi.string().required(),
+    accountName: Joi.string().required(),
+    routingNumber: Joi.string().required(),
+    accountNumber: Joi.string().required(),
+  }),
+};
+
+export const becomeSeller =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      body: {
+        companyRegistrationNumber,
+        streetAddress,
+        addressLine2,
+        city,
+        state,
+        zip,
+        storeName,
+        accountName,
+        routingNumber,
+        accountNumber,
+      },
+    } = req;
+    const sellerInformationRepository = getCustomRepository(
+      SellerInformationRepository
+    );
+    let sellerInfo = sellerInformationRepository.create({
+      companyRegistrationNumber,
+      streetAddress,
+      addressLine2,
+      city,
+      state,
+      zip,
+      storeName,
+      accountName,
+      routingNumber,
+      accountNumber,
+    });
+    console.log("In becomeSeller ", req.body);
+    sellerInfo = await sellerInformationRepository.save(sellerInfo);
+
+    res.status(201).json({
+      companyRegistrationNumber,
+      streetAddress,
+      addressLine2,
+      city,
+      state,
+      zip,
+      storeName,
+      accountName,
+      routingNumber,
+      accountNumber,
+    });
   };

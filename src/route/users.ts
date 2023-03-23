@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { validate } from 'express-validation';
+import { Router } from "express";
+import { validate } from "express-validation";
 
-import { authenticate, handleError } from '../middleware';
+import { authenticate, handleError } from "../middleware";
 import {
   changePassword,
   changePasswordValidation,
@@ -12,40 +12,53 @@ import {
   updatePasswordValidation,
   verifyEmailValidation,
   verifyEmail,
-} from '../controller/users';
+  becomeSeller,
+  becomeSellerValidation,
+} from "../controller/users";
 
 const router = Router();
 
 const patchChangePassword = (): Router =>
   router.patch(
-    '/change-password',
+    "/change-password",
     authenticate,
     validate(changePasswordValidation),
-    handleError(changePassword()),
+    handleError(changePassword())
   );
 
 const postForgetPassword = (): Router =>
   router.post(
-    '/forget-password',
+    "/forget-password",
     validate(forgetPasswordValidation, { context: true }),
-    handleError(forgetPassword()),
+    handleError(forgetPassword())
   );
 
 const postUpdatePassword = (): Router =>
   router.post(
-    '/update-password',
+    "/update-password",
     validate(updatePasswordValidation, { context: true }),
-    handleError(updatePassword()),
+    handleError(updatePassword())
   );
 
 const postVerifyEmail = (): Router =>
   router.post(
-    '/verify-email',
+    "/verify-email",
     validate(verifyEmailValidation, { context: true }),
-    handleError(verifyEmail()),
+    handleError(verifyEmail())
   );
 
-const getProfile = (): Router => router.get('/profile/me', authenticate, handleError(profile()));
+const getProfile = (): Router =>
+  router.get("/profile/me", authenticate, handleError(profile()));
+
+const postBecomeSeller = (): Router => {
+  console.log("Inside2-------");
+
+  return router.post(
+    "/become-seller",
+    validate(becomeSellerValidation, { context: true }),
+    handleError(becomeSeller())
+  );
+};
 
 export default (): Router =>
   router.use([
@@ -54,4 +67,5 @@ export default (): Router =>
     postForgetPassword(),
     postUpdatePassword(),
     patchChangePassword(),
+    postBecomeSeller(),
   ]);
