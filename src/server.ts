@@ -8,8 +8,8 @@ const database = new Database();
 const port = app.get('port');
 
 /**
- * Database connection when app run
- * It call Databse API Service which connects the Databse from the credentials given.
+ * Database connection
+ * It call Databse API Service which connects the Databse from the given credentials.
  */
 (async function () {
   try {
@@ -22,7 +22,11 @@ const port = app.get('port');
   }
 })();
 
+/**
+ * Terminate process and connection with the Database when server shut down.
+ */
 process.on('SIGINT', async () => {
   console.info('Gracefully shutting down');
   await database.disConnect();
+  process.exit(0);
 });

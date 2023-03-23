@@ -1,5 +1,3 @@
-import { URL } from "url";
-
 import {
   cleanEnv,
   str,
@@ -14,6 +12,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * Envalid is a small library for validating and accessing environment variables in Node.js.
+ * https://www.npmjs.com/package/envalid
+ * https://www.npmjs.com/package/dotenv
+ */
+
+/**
+ * Type of env variables of the project
+ */
 type Environment = {
   NODE_ENV: string;
   PORT: number;

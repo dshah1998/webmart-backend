@@ -2,10 +2,7 @@ import {
     Column,
     Entity,
     PrimaryGeneratedColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
     BaseEntity,
-    DeleteDateColumn,
   } from 'typeorm';
   
   @Entity('inventory', { schema: 'public' })
@@ -13,13 +10,13 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id!: number;
   
-    @Column('integer', { nullable: true })
+    @Column('double precision', { nullable: true })
     quantity!: number | null;
   
-    @Column('integer', { nullable: true })
+    @Column('double precision', { nullable: true })
     price!: number | null;
   
-    @Column('integer', { nullable: true })
+    @Column('double precision', { nullable: true })
     discount!: number | null;
   }
   

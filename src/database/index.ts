@@ -6,7 +6,6 @@ export default class Database {
   static #instance: Database;
 
   #connection?: Connection;
-  // #mongoConnection?: Connection;
 
   constructor() {
     if (Database.#instance instanceof Database) {
@@ -20,7 +19,7 @@ export default class Database {
     return this.#connection;
   }
 
-  // TODO: MongoDB and Postgres connection.
+  // TODO: MongoDB and MySQL connection.
   async connect(): Promise<Connection> {
     [this.#connection] = await Promise.all([
       createConnection(postgreTypeormConfig),

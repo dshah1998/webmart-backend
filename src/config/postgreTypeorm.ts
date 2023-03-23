@@ -4,7 +4,6 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import config from '../config';
 
 const baseFolder = config.isProd ? '' : 'src/';
-console.log("config.isProd", config.isProd);
 
 const typeormConfig = {
   type: config.POSTGRES_CONNECTION,
