@@ -11,6 +11,8 @@ import {
   removeProduct,
   getProductByIdValidation,
   getProductById,
+  updateProductValidation,
+  updateProduct
 } from '../controller/products';
 
 import { WebMartUserType } from '../constants';
@@ -34,7 +36,16 @@ const postCreateProduct = (): Router =>
     handleError(createProduct()),
   );
 
-const deleteUpdateProduct = (): Router =>
+const putupdateProduct = (): Router =>
+  router.put(
+    '/:id',
+    authenticate,
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.USER),
+    validate(updateProductValidation, { context: true }),
+    handleError(updateProduct()),
+  );
+
+const deleteProduct = (): Router =>
   router.delete(
     '/:id',
     authenticate,
@@ -54,7 +65,8 @@ const getByIdProduct = (): Router =>
 export default (): Router =>
   router.use([
     getProducts(),
+    deleteProduct(),
     getByIdProduct(),
+    putupdateProduct(),
     postCreateProduct(),
-    deleteUpdateProduct(),
   ]);

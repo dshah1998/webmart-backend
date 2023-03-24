@@ -3,12 +3,15 @@ import {
   Column,
   Entity,
   OneToOne,
+  ManyToOne,
   RelationId,
   BaseEntity,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from "typeorm";
 
 import { Products } from "./Products";
+import { Users } from "./Users";
 
 @Entity("inventory", { schema: "public" })
 export class Inventory extends BaseEntity {
@@ -19,8 +22,12 @@ export class Inventory extends BaseEntity {
   quantity!: number | null;
 
   @OneToOne(() => Products, (product) => product.inventory)
-  product!: Products;
+  @JoinColumn()
+  product!: Products | null;
 
-  @RelationId((inventory: Inventory) => inventory.product)
-  productId!: string | null;
+  @ManyToOne(() => Users, (user) => user.inventory)
+  user!: Users | null;
+
+  @RelationId((inventory: Inventory) => inventory.user)
+  userId!: string | null;
 }

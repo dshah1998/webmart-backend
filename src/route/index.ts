@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import auth from './auth';
 import users from './users';
+import brands from './brand';
 import products from './products';
 import category from './category';
 import userCards from './userCards';
@@ -12,6 +13,7 @@ routes.get('/', (req, res) => res.status(400).json({ message: 'Access not allowe
 
 routes.use('/auth', auth());
 routes.use('/users', users());
+routes.use('/brands', brands());
 routes.use('/products', products());
 routes.use('/categories', category());
 routes.use('/userCards', userCards());
