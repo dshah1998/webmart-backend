@@ -15,6 +15,7 @@ export const getProductsValidation = {
     categoryId: Joi.number().integer().optional(),
   }),
 };
+
 export const getAll = () => async (req: Request, res: Response): Promise<void> => {
   const {
     query: { search, categoryId },
