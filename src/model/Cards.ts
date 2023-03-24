@@ -30,8 +30,11 @@ import { Users } from "./Users";
     @Column('bigint')
     cvv!: number;
 
+    @Column('varchar', { length: 255, nullable: true })
+    stripeCustomerId!: string;
+
     @Column('boolean', { default: () => 'false' })
-    isEmailVisDefaut!: boolean;
+    isDefaut!: boolean;
 
     @Index()
     @ManyToOne(() => Users, (users) => users.address)

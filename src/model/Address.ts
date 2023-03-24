@@ -3,12 +3,14 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   RelationId,
   BaseEntity,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
 import { Users } from "./Users";
+import { Orders } from "./Orders";
 
 @Entity("address", { schema: "public" })
 export class Address extends BaseEntity {
@@ -39,4 +41,7 @@ export class Address extends BaseEntity {
 
   @RelationId((address: Address) => address.user)
   userId!: string;
+
+  @OneToMany(() => Orders, (order) => order.address)
+  orders!: Orders[];
 }

@@ -42,6 +42,9 @@ export class Users extends BaseEntity {
   @Column('boolean', { default: () => 'false' })
   isEmailVerify!: boolean;
 
+  @Column('varchar', { length: 255, nullable: true })
+  stripeCustomerId!: string;
+
   @Column("text", { array: true, nullable: true })
   userType: string[];
 
