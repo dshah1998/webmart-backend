@@ -1,8 +1,8 @@
 export class AppError extends Error {
   constructor(
-    public readonly message = 'Internal server error',
+    public readonly message = "Internal server error",
     public readonly statusCode = 500,
-    public readonly code = 'INTERNAL_SERVER_ERROR',
+    public readonly code = "INTERNAL_SERVER_ERROR"
   ) {
     super();
     Error.captureStackTrace(this, this.constructor);
@@ -12,7 +12,10 @@ export class AppError extends Error {
 export class BadRequestError extends AppError {
   public readonly statusCode = 400;
 
-  constructor(public readonly message = 'Bad Request', public readonly code = 'BAD_REQUEST') {
+  constructor(
+    public readonly message = "Bad Request",
+    public readonly code = "BAD_REQUEST"
+  ) {
     super();
   }
 }
@@ -20,7 +23,10 @@ export class BadRequestError extends AppError {
 export class UnauthorizedError extends AppError {
   public readonly statusCode = 401;
 
-  constructor(public readonly message = 'Unauthorized', public readonly code = 'UNAUTHORIZED') {
+  constructor(
+    public readonly message = "Unauthorized",
+    public readonly code = "UNAUTHORIZED"
+  ) {
     super();
   }
 }
@@ -28,17 +34,33 @@ export class UnauthorizedError extends AppError {
 export class NotFoundError extends AppError {
   public readonly statusCode = 404;
 
-  constructor(public readonly message = 'Not found', public readonly code = 'NOT_FOUND') {
+  constructor(
+    public readonly message = "Not found",
+    public readonly code = "NOT_FOUND"
+  ) {
     super();
   }
 }
 
-export class EntityNotFoundError<T extends { toString(): string }> extends NotFoundError {
+export class EntityNotFoundError<
+  T extends { toString(): string }
+> extends NotFoundError {
   constructor(public readonly id: T, public readonly entity: string) {
     super(
       `Could not find any matching record: ${id.toString()} for entity of type ${entity}`,
-      `${entity.toUpperCase()}_NOT_FOUND`,
+      `${entity.toUpperCase()}_NOT_FOUND`
     );
+  }
+}
+
+export class ForbiddenError extends AppError {
+  public readonly statusCode = 403;
+
+  constructor(
+    public readonly message = "Forbidden",
+    public readonly code = "FORBIDDEN"
+  ) {
+    super();
   }
 }
 

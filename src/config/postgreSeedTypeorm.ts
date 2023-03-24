@@ -18,6 +18,12 @@ const typeormConfig = {
   namingStrategy: new SnakeNamingStrategy(),
   migrationsTableName: 'seed',
   migrationsTransactionMode: 'each',
+  // ssl: true,
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: false
+  //   }
+  // },
   entities: [`${baseFolder}model/*{.js,.ts}`],
   migrations: [`${baseFolder}database/seed/*{.js,.ts}`],
   subscribers: [`${baseFolder}database/subscriber/**/*{.js,.ts}`],
