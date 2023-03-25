@@ -15,7 +15,7 @@ import { WebMartUserType } from '../constants';
 
 const router = Router();
 
-const getCarts = (): Router =>
+const getCarts = (): Router => 
   router.get(
     '/',
     authenticate,

@@ -21,11 +21,16 @@ export const getAll = () => async (req: Request, res: Response): Promise<void> =
     user: { id },
     query: { cartsId },
   } = req;
+  console.log("Called!!!");
 
   const query = getManager()
     .createQueryBuilder(Carts, 'cart')
     .leftJoinAndSelect('cart.user', 'user')
     .where('user.id = :id', { id });
+
+  console.log("-----------------");
+  console.log("This funciton is called");
+  console.log("-----------------");
 
   const [carts, count] = await query.getManyAndCount();
 
