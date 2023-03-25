@@ -150,6 +150,7 @@ export const becomeSeller =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
+      user,
       body: {
         companyRegistrationNumber,
         streetAddress,
@@ -166,6 +167,7 @@ export const becomeSeller =
     const sellerInformationRepository = getCustomRepository(
       SellerInformationRepository
     );
+
     let sellerInfo = sellerInformationRepository.create({
       companyRegistrationNumber,
       streetAddress,
@@ -177,8 +179,9 @@ export const becomeSeller =
       accountName,
       routingNumber,
       accountNumber,
+      user,
     });
-    console.log("In becomeSeller ", req.body);
+    console.log("In becomeSeller ", sellerInfo);
     sellerInfo = await sellerInformationRepository.save(sellerInfo);
 
     res.status(201).json({

@@ -4,10 +4,13 @@ import {
   OneToMany,
   BaseEntity,
   PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
 } from "typeorm";
 
 import { Address } from "./Address";
 import { WebMartUserType } from "../constants";
+import { Users } from "./Users";
 
 @Entity("seller_information", { schema: "public" })
 export class SellerInformation extends BaseEntity {
@@ -43,4 +46,8 @@ export class SellerInformation extends BaseEntity {
 
   @Column("varchar", { nullable: true })
   routingNumber: string;
+
+  @OneToOne(() => Users)
+  @JoinColumn()
+  user: Users;
 }
