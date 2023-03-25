@@ -45,6 +45,7 @@ export const createCartValidation = {
     quantity: Joi.number().required(),
   }),
 };
+
 export const createCart =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -58,19 +59,10 @@ export const createCart =
 
     const cartRepo = getRepository(Carts);
 
-    const existingCart = await cartRepo.findOne({
-      where: { productId, quantity },
-    });
-    if (existingCart) {
-      throw new BadRequestError(
-        "product Already Exist",
-        "PRODUCT_ALREADY_EXIST"
-      );
-    }
-
     let newCart = cartRepo.create({
       product: productId && (await getManager().getRepository(Products).findOneOrFail(productId)),
-      quantity
+      quantity,
+      user
     });
 
     newCart = await cartRepo.save(newCart);
