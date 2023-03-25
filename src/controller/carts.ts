@@ -12,20 +12,21 @@ import { Inventory } from "../model/Inventory";
 
 export const getCartValidation = {
   query: Joi.object({
-    cartsID: Joi.string().uuid({version: 'uuidv4'}).required(),
   }),
 };
 
 export const getAll = () => async (req: Request, res: Response): Promise<void> => {
+  console.log(req, "---carts request");
   const {
-    user: { id },
-    query: { cartsId },
+    user: {id},
   } = req;
   console.log("Called!!!");
+  console.log("user---", id);
 
   const query = getManager()
     .createQueryBuilder(Carts, 'cart')
     .leftJoinAndSelect('cart.user', 'user')
+    .leftJoinAndSelect('cart.product', 'product')
     .where('user.id = :id', { id });
 
   console.log("-----------------");
@@ -68,7 +69,7 @@ export const createCart =
     }
 
     let newCart = cartRepo.create({
-      products: productId && (await getManager().getRepository(Products).findOneOrFail(productId)),
+      product: productId && (await getManager().getRepository(Products).findOneOrFail(productId)),
       quantity
     });
 

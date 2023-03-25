@@ -18,7 +18,7 @@ const router = Router();
 const getCarts = (): Router => 
   router.get(
     '/',
-    // authenticate,
+    authenticate,
     validate(getCartValidation, { context: true }),
     handleError(getAll()),
   );

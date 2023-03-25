@@ -67,6 +67,6 @@ export class Products extends BaseEntity {
   @RelationId((product: Products) => product.category)
   categoryId!: string | null;
 
-  @OneToMany(() => Carts, (cart) => cart.products)
+  @OneToMany(() => Carts, (cart) => cart.product)
   cart!: Carts[];
 }

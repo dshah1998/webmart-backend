@@ -31,6 +31,6 @@ import { Products } from "./Products";
 
     @ManyToOne(() => Products, (product) => product.cart)
     @JoinColumn()
-    products!: Products;
+    product!: Products;
   }
   
