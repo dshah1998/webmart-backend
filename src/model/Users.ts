@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { Address } from './Address';
+import { Cards } from './Cards';
 import { WebMartUserType } from '../constants';
 
 @Entity('users', { schema: 'public' })
@@ -41,6 +42,9 @@ export class Users extends BaseEntity {
   @Column('boolean', { default: () => 'false' })
   isEmailVerify!: boolean;
 
+  @Column('varchar', { length: 255, nullable: true })
+  stripeCustomerId!: string;
+
   @Column("text", { array: true, nullable: true })
   userType: string[];
 
@@ -49,4 +53,7 @@ export class Users extends BaseEntity {
 
   @OneToMany(() => Address, (address) => address.user)
   address!: Address[];
+  
+  @OneToMany(() => Cards, (cards) => cards.user)
+  cards!: Cards[];
 }

@@ -7,11 +7,12 @@ import { BadRequestError } from "../error";
 
 import { MailService } from "../service/Mail";
 import { hashPassword, comparePassword } from "../service/password";
+import StripeCustomersService from "../service/StripeCustomers";
 
 import { UsersRepository } from "../repository/Users";
 import { Users } from "../model/Users";
 
-import { WebMartUserType, Token } from "../constants";
+import { WebMartUserType, Token, Actions } from "../constants";
 import config from "../config";
 import { registerSuccess } from "../database/seed/htmlTemplates/register";
 
@@ -33,7 +34,12 @@ export const signupValidation = {
     firstName: Joi.string().max(255).regex(new RegExp(namePattern)).required(),
     lastName: Joi.string().max(255).regex(new RegExp(namePattern)).required(),
     password: Joi.string().min(6).max(128).required(),
-    userType: Joi.array().items(Joi.string().valid(...Object.values(WebMartUserType)).default(null))
+    userType: Joi.array()
+      .items(
+        Joi.string()
+          .valid(...Object.values(WebMartUserType))
+          .default(null)
+      )
       .required(),
   }),
 };
@@ -59,11 +65,11 @@ export const signUp =
     const hashedPassword = await hashPassword(password);
 
     let user = userRepository.create({
+      email,
       firstName,
       lastName,
-      email,
+      userType,
       password: hashedPassword,
-      userType: [userType],
       token: emailToken,
     });
 
@@ -78,6 +84,30 @@ export const signUp =
     }
 
     if (user && user.password) user.password = "";
+
+    if (
+      !user?.stripeCustomerId &&
+      (user?.userType || []).includes(WebMartUserType.USER)
+    ) {
+      try {
+        const service = new StripeCustomersService();
+        const result = await service.execute({
+          userId: user?.id,
+          email: user?.email,
+          name: user?.firstName,
+          action: Actions.CREATE,
+        });
+        await userRepository.update(user?.id, {
+          stripeCustomerId: result?.stripeCustomerId,
+        });
+
+        user = Object.assign({}, user, {
+          stripeCustomerId: result?.stripeCustomerId,
+        });
+      } catch (error) {
+        console.error("Error in creation of stripe customer");
+      }
+    }
 
     const accessToken = await signAccessToken(user.id);
     const refreshToken = await signRefreshToken(user.id);
@@ -114,7 +144,12 @@ const sendMail = async (user: Users, link: string) => {
     text: "email_verify",
     to: user.email,
     subject: "Registration Success | WebMart",
-    html: (registerSuccess || '').replace(new RegExp('{link}', 'g'), link || '').replace(new RegExp('{name}', 'g'), `${user.firstName || '' }${user.lastName || ''}`),
+    html: (registerSuccess || "")
+      .replace(new RegExp("{link}", "g"), link || "")
+      .replace(
+        new RegExp("{name}", "g"),
+        `${user.firstName || ""}${user.lastName || ""}`
+      ),
   };
   await mailService.send(mailBody);
 };
@@ -143,11 +178,31 @@ export const login =
 
     const passwordMatched = await comparePassword(password, user.password);
     if (!passwordMatched) {
-      throw new BadRequestError("Password missmatch", "PASSWORD_MISSMATCH");
+      throw new BadRequestError("Password is wrong", "PASSWORD_MISSMATCH");
     }
 
     const accessToken = await signAccessToken(user.id);
     const refreshToken = await signRefreshToken(user.id);
+
+    if (
+      !user?.stripeCustomerId &&
+      (user?.userType || []).includes(WebMartUserType.USER)
+    ) {
+      try {
+        const service = new StripeCustomersService();
+        const result = await service.execute({
+          userId: user?.id,
+          email: user?.email,
+          name: user?.firstName,
+          action: Actions.CREATE,
+        });
+        await userRepository.update(user?.id, {
+          stripeCustomerId: result?.stripeCustomerId,
+        });
+      } catch (error) {
+        console.error("Error in creation of stripe customer");
+      }
+    }
 
     // TODO: This may defer from token expiry
     const expiresIn = config.ACCESS_TOKEN_LIFETIME_MIN * 60;

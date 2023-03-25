@@ -16,3 +16,11 @@ export enum ApiMethods {
   PATCH = "PATCH",
   DELETE = "DELETE",
 }
+
+export enum Actions {
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+}

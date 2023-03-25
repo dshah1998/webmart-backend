@@ -4,7 +4,6 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import config from '../config';
 
 const baseFolder = config.isProd ? '' : 'src/';
-console.log("config.isProd", config.isProd);
 
 const typeormConfig = {
   type: config.POSTGRES_CONNECTION,
@@ -16,6 +15,12 @@ const typeormConfig = {
   synchronize: true, // TODO: Make false on production
   logging: true || ['error'], // TODO: Make ['error'] on production
   dropSchema: false, // TODO: Make true on test
+  // ssl: true,
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: false
+  //   }
+  // },
   namingStrategy: new SnakeNamingStrategy(),
   entities: [`${baseFolder}model/*{.js,.ts}`, `${baseFolder}model/views/*{.js,.ts}`],
   migrations: [`${baseFolder}database/migration/**/*{.js,.ts}`],

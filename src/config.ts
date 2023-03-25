@@ -1,5 +1,3 @@
-import { URL } from "url";
-
 import {
   cleanEnv,
   str,
@@ -14,6 +12,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * Envalid is a small library for validating and accessing environment variables in Node.js.
+ * https://www.npmjs.com/package/envalid
+ * https://www.npmjs.com/package/dotenv
+ */
+
+/**
+ * Type of env variables of the project
+ */
 type Environment = {
   NODE_ENV: string;
   PORT: number;
@@ -45,6 +52,11 @@ type Environment = {
   GMAIL_CLIENT_SECRET: string;
   GMAIL_REFRESH_TOKEN: string;
   GMAIL_PASSWORD: string;
+  STRIPE_PUBLISHABLE_KEY: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_ENDPOINT_SECRET: string;
+  STRIPE_AUTH_URL: string;
+  STRIPE_CLIENT_ID: string;
 };
 
 export type Env = Readonly<Environment & CleanedEnvAccessors>;
@@ -89,6 +101,11 @@ const env: Env = cleanEnv<Environment>(process.env, {
   GMAIL_CLIENT_ID: str({ default: undefined }),
   GMAIL_CLIENT_SECRET: str({ default: undefined }),
   GMAIL_REFRESH_TOKEN: str({ default: undefined }),
+  STRIPE_PUBLISHABLE_KEY: str(),
+  STRIPE_SECRET_KEY: str(),
+  STRIPE_WEBHOOK_ENDPOINT_SECRET: str(),
+  STRIPE_AUTH_URL: str(),
+  STRIPE_CLIENT_ID: str(),
 });
 
 export default env;
