@@ -41,7 +41,7 @@ export class Products extends BaseEntity {
   price!: number | null;
 
   @Column("boolean", { default: () => "false" })
-  isUsed!: boolean;
+  isUsed!: boolean | null;
 
   @Column("int", { nullable: false })
   completedStep!: number;
@@ -53,7 +53,7 @@ export class Products extends BaseEntity {
   } | null;
 
   @OneToOne(() => Inventory, (inventory) => inventory.product)
-  inventory!: Inventory | null;
+  inventory!: Inventory;
 
   @ManyToOne(() => Brand, (brand) => brand.product)
   brand!: Brand | null;
