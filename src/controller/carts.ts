@@ -16,12 +16,12 @@ export const getCartValidation = {
 };
 
 export const getAll = () => async (req: Request, res: Response): Promise<void> => {
-  console.log(req, "---carts request");
+  // console.log(req, "---carts request");
   const {
     user: {id},
   } = req;
-  console.log("Called!!!");
-  console.log("user---", id);
+  // console.log("Called!!!");
+  // console.log("user---", id);
 
   const query = getManager()
     .createQueryBuilder(Carts, 'cart')
@@ -116,14 +116,19 @@ export const updateCartById =
   };
 
 export const deleteCartValidation = {
-  params: Joi.object({ id: Joi.string().uuid({ version: 'uuidv4' }).required() }),
+  params: Joi.object({ id: Joi.string().required() }),
 };
+
 export const removeCart =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       params: { id },
     } = req;
+
+    console.log("------");
+    console.log(id);
+    console.log("------");
 
     const cartRepo = getRepository(Carts);
     const product = await cartRepo.findOne(id);
@@ -134,9 +139,10 @@ export const removeCart =
 
     try {
       await cartRepo.delete(id);
+
     } catch (error) {
       console.error("Error in deletation of the product");
       throw new BadRequestError('Something went wrong in deletation of the Product', "PRODUCT_ERROR_DELETE");
     }
-    res.sendStatus(204);
+    res.sendStatus(204).json({"message": "removed from cart, success"});
   };
