@@ -9,6 +9,10 @@ import {
   getAll,
   deleteCartValidation,
   removeCart,
+  updateCartById,
+  updateCartByIdValidation,
+  getCartById,
+  getCartByIdValidation
 } from '../controller/carts';
 
 import { WebMartUserType } from '../constants';
@@ -32,6 +36,14 @@ const postCreateCart = (): Router =>
     handleError(createCart()),
   );
 
+const getCartUsingId = (): Router =>
+router.get(
+  '/:id',
+  authenticate,
+  validate(getCartByIdValidation, { context: true }),
+  handleError(getCartById()),
+);
+
 const deleteUpdateCart = (): Router =>
   router.delete(
     '/:id',
@@ -41,9 +53,19 @@ const deleteUpdateCart = (): Router =>
     handleError(removeCart()),
   );
 
+  const updateCarts = (): Router =>
+  router.put(
+    '/:id',
+    authenticate,
+    validate(updateCartByIdValidation, { context: true }),
+    handleError(updateCartById()),
+  );
+
 export default (): Router =>
   router.use([
     getCarts(),
     postCreateCart(),
+    getCartUsingId(),
     deleteUpdateCart(),
+    updateCarts(),
   ]);
