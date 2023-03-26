@@ -26,7 +26,8 @@ export const getAll =
 
     const query = getManager()
       .createQueryBuilder(Products, "product")
-      .leftJoinAndSelect("product.category", "category");
+      .leftJoinAndSelect("product.category", "category")
+      .leftJoinAndSelect("product.brand", "brand");
 
     if (search && search !== "") {
       query.andWhere("product.name like :name", { name: "%" + search + "%" });
@@ -36,7 +37,6 @@ export const getAll =
     }
 
     const [products, count] = await query.getManyAndCount();
-
     res.status(200).json({ count, products });
   };
 
@@ -253,7 +253,6 @@ export const removeProduct =
     try {
       await productRepo.delete(id);
     } catch (error) {
-      console.error("Error in deletation of the product");
       throw new BadRequestError(
         "Something went wrong in deletation of the Product",
         "PRODUCT_ERROR_DELETE"

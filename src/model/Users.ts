@@ -59,5 +59,5 @@ export class Users extends BaseEntity {
   cards!: Cards[];
 
   @OneToMany(() => Inventory, (inventory) => inventory.user)
-  inventory!: Cards[];
+  inventory!: Inventory[];
 }

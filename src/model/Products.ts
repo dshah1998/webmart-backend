@@ -50,7 +50,7 @@ export class Products extends BaseEntity {
     color: string | null; 
   } | null;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.product)
+  @OneToOne(() => Inventory, (inventory) => inventory.product, { onDelete: 'CASCADE' })
   inventory!: Inventory;
 
   @ManyToOne(() => Brand, (brand) => brand.product)
