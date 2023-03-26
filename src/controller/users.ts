@@ -4,6 +4,7 @@ import { Joi } from "express-validation";
 
 import ForgetPasswordService from "../service/ForgetPasswordService";
 import UpdatePasswordService from "../service/UpdatePasswordService";
+import UpdateUserData from "../service/UpdateUserData";
 import { hashPassword, comparePassword } from "../service/password";
 import { BadRequestError, UnauthorizedError } from "../error";
 import { UsersRepository } from "../repository/Users";
@@ -17,8 +18,7 @@ export const changePasswordValidation = {
     newPassword: Joi.string().min(6).max(128).required(),
   }),
 };
-export const changePassword =
-  () =>
+export const changePassword = () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       user,
@@ -43,6 +43,7 @@ export const changePassword =
     );
 
     if (!result) {
+      res.status(201).json({message: "Password incorrect!"});
       throw new BadRequestError("Pasword is incorrect", "PASSWORD_INCORRECT");
     }
 
@@ -60,8 +61,7 @@ export const forgetPasswordValidation = {
     email: Joi.string().lowercase().max(255).email().optional(),
   }),
 };
-export const forgetPassword =
-  () =>
+export const forgetPassword = () =>
   async (req: Request, res: Response): Promise<void> => {
     const service = new ForgetPasswordService();
     const result = await service.execute(req.body);
@@ -69,8 +69,7 @@ export const forgetPassword =
     res.json(result);
   };
 
-export const profile =
-  () =>
+export const profile = () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       user: { id },
@@ -92,37 +91,49 @@ export const updatePasswordValidation = {
       .valid(...Object.values(WebMartUserType))
       .default(null)
       .required(),
+  }).custom((value, helpers) => {
+    console.log('11111111111111new Password entered: ${value.newPassword}', value.newPassword)
+    return value;
   }),
 };
-export const updatePassword =
-  () =>
+
+export const updatePassword = () =>
   async (req: Request, res: Response): Promise<void> => {
+    console.log("11111111111111111111111111111111111111")
     const service = new UpdatePasswordService();
     const result = await service.execute(req.body);
 
     res.json(result);
   };
 
-  export const verifyEmailValidation = {
-    body: Joi.object({
-      token: Joi.string().required(),
-    }),
-  };
-  export const verifyEmail = () => async (req: Request, res: Response): Promise<void> => {
-    const {
-      body: { token },
-    } = req;
-  
-    const userRepository = getCustomRepository(UsersRepository);
-    const verificationDetails = await userRepository.findOne({
-      where: { token: token },
-    });
-  
-    if (!verificationDetails) {
-      throw new BadRequestError('Token is invalid or expired', 'INVALID_TOKEN');
-    }
-  
-    await userRepository.update(verificationDetails.id, { isEmailVerify: true });
-  
-    res.sendStatus(200);
-  };
+export const verifyEmailValidation = {
+  body: Joi.object({
+    token: Joi.string().required(),
+  }),
+};
+export const verifyEmail = () => async (req: Request, res: Response): Promise<void> => {
+  const {
+    body: { token },
+  } = req;
+
+  const userRepository = getCustomRepository(UsersRepository);
+  const verificationDetails = await userRepository.findOne({
+    where: { token: token },
+  });
+
+  if (!verificationDetails) {
+    throw new BadRequestError('Token is invalid or expired', 'INVALID_TOKEN');
+  }
+
+  await userRepository.update(verificationDetails.id, { isEmailVerify: true });
+
+  res.sendStatus(200);
+};
+
+
+export const updateUserData = () => async (req: Request, res: Response): Promise<void> => {
+  console.log('*****************************************************************************************************')
+  const service = new UpdateUserData();
+  const result = await service.execute(req.body);
+  res.json(result);
+};

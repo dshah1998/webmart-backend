@@ -37,8 +37,7 @@ export const signupValidation = {
       .required(),
   }),
 };
-export const signUp =
-  () =>
+export const signUp = () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       body: { userType, email, password, firstName, lastName },
@@ -63,7 +62,7 @@ export const signUp =
       lastName,
       email,
       password: hashedPassword,
-      userType: [userType],
+      userType: [...userType],
       token: emailToken,
     });
 
@@ -114,7 +113,7 @@ const sendMail = async (user: Users, link: string) => {
     text: "email_verify",
     to: user.email,
     subject: "Registration Success | WebMart",
-    html: (registerSuccess || '').replace(new RegExp('{link}', 'g'), link || '').replace(new RegExp('{name}', 'g'), `${user.firstName || '' }${user.lastName || ''}`),
+    html: (registerSuccess || '').replace(new RegExp('{link}', 'g'), link || '').replace(new RegExp('{name}', 'g'), `${user.firstName || ''}${user.lastName || ''}`),
   };
   await mailService.send(mailBody);
 };
@@ -125,8 +124,7 @@ export const loginValidation = {
     password: Joi.string().min(6).max(128).required(),
   }),
 };
-export const login =
-  () =>
+export const login = () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       body: { email, password },
@@ -178,8 +176,7 @@ export const refreshTokenValidation = {
     refreshToken: Joi.string().required(),
   }),
 };
-export const refreshToken =
-  () =>
+export const refreshToken = () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
       body: { refreshToken },

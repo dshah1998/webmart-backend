@@ -12,6 +12,9 @@ import {
   updatePasswordValidation,
   verifyEmailValidation,
   verifyEmail,
+
+  // verifyUserData,
+  updateUserData,
 } from '../controller/users';
 
 const router = Router();
@@ -35,8 +38,11 @@ const postUpdatePassword = (): Router =>
   router.post(
     '/update-password',
     validate(updatePasswordValidation, { context: true }),
-    handleError(updatePassword()),
-  );
+    handleError(()=> {
+      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+      updatePassword();
+    })
+    );
 
 const postVerifyEmail = (): Router =>
   router.post(
@@ -44,8 +50,15 @@ const postVerifyEmail = (): Router =>
     validate(verifyEmailValidation, { context: true }),
     handleError(verifyEmail()),
   );
+const getProfile = (): Router => router.get('/me', authenticate, handleError(profile()));
 
-const getProfile = (): Router => router.get('/profile/me', authenticate, handleError(profile()));
+const putUpdateUserData = (): Router =>
+  router.put(
+    '/profile',
+    // validate(verifyUserData, { context: true }),
+    handleError(updateUserData())
+  )
+
 
 export default (): Router =>
   router.use([
@@ -54,4 +67,5 @@ export default (): Router =>
     postForgetPassword(),
     postUpdatePassword(),
     patchChangePassword(),
+    putUpdateUserData()
   ]);

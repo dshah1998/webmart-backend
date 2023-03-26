@@ -16,6 +16,18 @@ export class Address extends BaseEntity {
   id!: string;
 
   @Column("varchar", { length: 255, nullable: true })
+  full_name!: string;
+
+  @Column("varchar", { length: 255, nullable: true })
+  phone_number!: string;
+
+  @Column("varchar", { length: 255, nullable: true })
+  address1!: string;
+
+  @Column("varchar", { length: 255, nullable: true })
+  address2!: string;
+  
+  @Column("varchar", { length: 255, nullable: true })
   city!: string;
 
   @Column("varchar", { length: 255, nullable: true })
