@@ -34,7 +34,7 @@ export const createUsersCardValidation = {
     expMonth: Joi.string().max(5).required(),
     expYear: Joi.string().max(5).required(),
     cvc: Joi.string().max(5).required(),
-    name: Joi.string().max(50).optional(),
+    name: Joi.string().max(50).required(),
     isDefault: Joi.boolean().optional().default(true),
   }),
 };
