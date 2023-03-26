@@ -7,6 +7,7 @@ import products from './products';
 import category from './category';
 import userCards from './userCards';
 import testPayment from './testPayment';
+import orderAddress from './orderAddress';
 import carts from './carts';
 
 const routes = Router();
@@ -19,6 +20,7 @@ routes.use('/products', products());
 routes.use('/categories', category());
 routes.use('/userCards', userCards());
 routes.use('/testPayment', testPayment());
+routes.use('/orderAddress', orderAddress());
 routes.use('/cart', carts());
 
 export default (): Router => routes;
