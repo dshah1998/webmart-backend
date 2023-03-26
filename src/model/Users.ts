@@ -9,6 +9,7 @@ import {
 import { Address } from './Address';
 import { Cards } from './Cards';
 import { Inventory } from './Inventory';
+import { Orders } from './Orders';
 import { WebMartUserType } from '../constants';
 import { Carts } from './Cart';
 
@@ -64,4 +65,7 @@ export class Users extends BaseEntity {
   
   @OneToMany(() => Inventory, (inventory) => inventory.user)
   inventory!: Inventory[];
+
+  @OneToMany(() => Orders, (order) => order.user)
+  orders!: Orders[];
 }

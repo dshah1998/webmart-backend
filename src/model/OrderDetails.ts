@@ -21,6 +21,15 @@ export class OrderDetails extends BaseEntity {
   @Column("double precision", { nullable: true })
   price!: number | null;
 
+  @Column("double precision", { nullable: true })
+  discount!: number | null;
+
+  @Column("double precision", { nullable: true })
+  subTotal!: number | null;
+
+  @Column("double precision", { nullable: true })
+  grandTotal!: number | null;
+
   @Index()
   @ManyToOne(() => Orders, (order) => order.orderDetails)
   order!: Orders;

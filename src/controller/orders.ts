@@ -1,76 +1,162 @@
-// import {
-//   getManager,
-//   getRepository,
-//   FindConditions,
-//   In,
-//   Brackets,
-//   getCustomRepository,
-// } from "typeorm";
-// import { Request, Response } from "express";
-// import { Joi } from "express-validation";
-// import { sumBy } from "lodash";
+import { getRepository, FindConditions } from "typeorm";
+import { Request, Response } from "express";
+import { Joi } from "express-validation";
+import { sumBy, omit } from "lodash";
 
-// import { MailService } from "../service/Mail";
-// import StripeOrderPaymentService from "../service/StripeOrderPayment";
+import { MailService } from "../service/Mail";
+import StripeOrderPaymentService from "../service/StripeOrderPayment";
+import GetCartService from "../service/GetCart";
 
-// import { BadRequestError, NotFoundError } from "../error";
+import { BadRequestError, NotFoundError } from "../error";
 
-// //   import { Cart } from '../model/Cart';
-// import { Users } from "../model/Users";
-// import { Orders } from "../model/Orders";
-// import { OrderDetails } from "../model/OrderDetails";
-// import { Address } from "../model/Address";
+import { Orders } from "../model/Orders";
+import { Users } from "../model/Users";
+import { OrderDetails } from "../model/OrderDetails";
+import { Address } from "../model/Address";
+import { orderSuccess } from "../database/seed/htmlTemplates/register";
 
-// import { WebMartUserType } from "../constants";
+import { WebMartUserType } from "../constants";
 
 // import { OrderDetailsRepository } from "../repository/OrdersDetail";
 // import { OrdersRepository } from "../repository/Orders";
-// import config from "../config";
+import config from "../config";
 
-// export const createOrderValidation = {
-//   body: Joi.object({
-//     stripeCardId: Joi.string().required(),
-//     addressId: Joi.number().integer().min(1).optional(),
-//   }),
-// };
-// export const createOrder =
-//   () =>
-//   async (req: Request, res: Response): Promise<void> => {
-//     const {
-//       user,
-//       body: { stripeCardId, addressId },
-//     } = req;
+export const createOrderValidation = {
+  body: Joi.object({
+    stripeCardId: Joi.string().required(),
+    addressId: Joi.number().integer().min(1).optional(),
+  }),
+};
+export const createOrder =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      body: { stripeCardId, addressId },
+    } = req;
 
-//     const ordersRepo = getRepository(Orders);
-//     const userAddressRepo = getRepository(Address);
-//     const orderDetailsRepo = getRepository(OrderDetails);
+    const ordersRepo = getRepository(Orders);
+    const userRepo = getRepository(Users);
+    const userAddressRepo = getRepository(Address);
+    const orderDetailsRepo = getRepository(OrderDetails);
 
-//     const cartService = new GetCart();
-//     const data = await cartService.execute({
-//       userId: user?.id,
-//       isOrder: true,
-//     });
+    // let where: FindConditions<Address> = {};
+    // if (addressId) where = { ...where, id: addressId };
+    // const address = await userAddressRepo.findOne({ where });
+    // if (!address)
+    //   throw new NotFoundError(
+    //     "Default address not found",
+    //     "DEFAULT_ADDRESS_NOT_FOUND"
+    //   );
 
-//     let { orderDetails } = data;
+    const cartService = new GetCartService();
+    const data = await cartService.execute({
+      userId: user?.id,
+    });
 
-//     if (!(orderDetails && orderDetails.length)) {
-//       throw new BadRequestError("Cart is empty", "EMPTY_CART");
-//     }
+    let { orderDetails } = data;
+    if (!(orderDetails && orderDetails.length)) {
+      throw new BadRequestError("Cart is empty", "EMPTY_CART");
+    }
 
-//     const grandTotal = sumBy(orderDetails, "grandTotal");
-//     const cartIds = (orderDetails || []).map((detail) => detail.id);
+    const grandTotal = sumBy(orderDetails, "grandTotal");
+    const subTotal = sumBy(orderDetails, "subTotal");
+    const qty = sumBy(orderDetails, "qty");
+    const totalSalesTax = sumBy(orderDetails, "salseTaxAmount");
+    const cartIds = (orderDetails || []).map((detail) => detail.id);
+    const orderDetailIds = (orderDetails || []).map(
+      (detail) => detail?.id || ""
+    );
 
-//     let where: FindConditions<UserAddresses> = {};
+    let order = ordersRepo.create({
+      user,
+      subTotal,
+      grandTotal,
+      createdAt: new Date(),
+    });
+    order = await ordersRepo.save(order);
 
-//     if (addressId) where = { ...where, id: addressId };
-//     else where = { ...where, isDefault: true, user };
+    // TODO: manage relations
+    try {
+      orderDetails = orderDetails.map((details) =>
+        omit(Object.assign({}, { ...details, order }), ["id"])
+      );
 
-//     const address = await userAddressRepo.findOne({ where });
-//     if (!address)
-//       throw new NotFoundError(
-//         "Default address not found",
-//         "DEFAULT_ADDRESS_NOT_FOUND"
-//       );
+      orderDetails = await orderDetailsRepo.save(orderDetails);
 
-//     res.status(201).json({});
-//   };
+      order = Object.assign({}, order, {
+        grandTotal,
+        subTotal,
+      });
+      order = await ordersRepo.save(order);
+    } catch (error) {
+      await ordersRepo.delete(order?.id);
+      throw new BadRequestError(
+        "Order details creation error",
+        "ORDERDETAILS_CREATE_FAILED"
+      );
+    }
+
+    // payment integration of order
+    try {
+      const service = new StripeOrderPaymentService();
+      const payment = await service.execute({
+        stripeCardId,
+        confirm: true,
+        isOrder: true,
+        orderDetailIds,
+        currency: "usd",
+        userId: user?.id,
+        email: user?.email,
+        orderId: order?.id,
+        amount: 1 || Math.ceil(data.grandTotal ? data.grandTotal : 0),
+        stripeCustomerId: user?.stripeCustomerId,
+      });
+    } catch (error) {
+      await orderDetailsRepo.delete(orderDetailIds);
+      await ordersRepo.delete(order?.id);
+      throw new BadRequestError("Error in payment");
+    }
+
+    try {
+        const mailService = new MailService();
+        const mailBody = {
+          to: `${user?.email}, ${config.ADMIN_CONTACT_EMAIL}`,
+          email: user?.email,
+          orderId: order?.id.toString(),
+          total: data?.grandTotal.toString(),
+          subject: "Webmart - Order Placed",
+          html: (orderSuccess || "")
+          .replace(new RegExp("{name}", "g"), `${user?.firstName} ${user?.lastName}` || "")
+          .replace(
+            new RegExp("{status}", "g"),
+            "created"
+          ).replace(
+            new RegExp("{orderId}", "g"),
+            `${order?.id.toString() || 'AwedrteosffsdFSW'}`
+          ).replace(
+            new RegExp("{qty}", "g"),
+            (qty || 0).toString()
+          ).replace(
+            new RegExp("{salesTax}", "g"),
+            (totalSalesTax || 0).toString()
+          ).replace(
+            new RegExp("{subTotal}", "g"),
+            (subTotal || 0).toString()
+          ).replace(
+            new RegExp("{grandTotal}", "g"),
+            (grandTotal || 0).toString()
+          ).replace(
+            new RegExp("{admin}", "g"),
+            "sarangp3010@gmail.com"
+          ),
+        };
+        mailService.send(mailBody);
+      } catch (error) {
+        console.error('Error in sending the mail');
+      }
+
+      const tokens = grandTotal / 10;
+
+    res.status(201).json({order, orderDetails});
+  };
