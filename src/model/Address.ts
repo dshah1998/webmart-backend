@@ -18,6 +18,12 @@ export class Address extends BaseEntity {
   id!: string;
 
   @Column("varchar", { length: 255, nullable: true })
+  addressType!: string;
+
+  @Column("varchar", { length: 255, nullable: true })
+  email!: string;
+
+  @Column("varchar", { length: 255, nullable: true })
   city!: string;
 
   @Column("varchar", { length: 255, nullable: true })
@@ -26,11 +32,14 @@ export class Address extends BaseEntity {
   @Column("varchar", { length: 255, nullable: true })
   country!: string;
 
+  @Column("varchar", { length: 255, nullable: true })
+  name!: string;
+
   @Column("varchar")
   pincode!: string;
 
-  @Column("integer", { nullable: true })
-  houseNumber!: number | null;
+  @Column("varchar", { nullable: true })
+  streetAddress!: string;
 
   @Column("boolean", { default: () => "true" })
   isDefault!: boolean;

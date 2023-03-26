@@ -9,11 +9,13 @@ import {
   RelationId,
   BaseEntity,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from "typeorm";
 
 import { Inventory } from "./Inventory";
 import { Category } from "./Category";
 import { Brand } from "./Brand";
+import { Carts } from "./Cart";
 
 @Entity("products", { schema: "public" })
 export class Products extends BaseEntity {
@@ -64,4 +66,7 @@ export class Products extends BaseEntity {
 
   @RelationId((product: Products) => product.category)
   categoryId!: string | null;
+
+  @OneToMany(() => Carts, (cart) => cart.product)
+  cart!: Carts[];
 }
