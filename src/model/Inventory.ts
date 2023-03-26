@@ -21,7 +21,7 @@ export class Inventory extends BaseEntity {
   @Column("double precision", { nullable: true })
   quantity!: number | null;
 
-  @OneToOne(() => Products, (product) => product.inventory)
+  @OneToOne(() => Products, (product) => product.inventory,  { onDelete: 'CASCADE' })
   @JoinColumn()
   product!: Products | null;
 

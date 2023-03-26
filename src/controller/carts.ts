@@ -16,12 +16,9 @@ export const getCartValidation = {
 };
 
 export const getAll = () => async (req: Request, res: Response): Promise<void> => {
-  // console.log(req, "---carts request");
   const {
     user: {id},
   } = req;
-  // console.log("Called!!!");
-  // console.log("user---", id);
 
   const query = getManager()
     .createQueryBuilder(Carts, 'cart')

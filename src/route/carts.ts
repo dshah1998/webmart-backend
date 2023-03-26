@@ -31,7 +31,7 @@ const postCreateCart = (): Router =>
   router.post(
     '/',
     authenticate,
-    checkUserType(WebMartUserType.ADMIN),
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.USER),
     validate(createCartValidation, { context: true }),
     handleError(createCart()),
   );

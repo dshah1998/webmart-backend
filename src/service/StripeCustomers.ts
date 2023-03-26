@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import config from '../config';
 import { Actions } from '../constants';
 
-const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2020-08-27' });
 
 interface Request {
   userId: string;

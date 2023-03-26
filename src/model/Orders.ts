@@ -11,16 +11,23 @@ import {
 
 import { OrderDetails } from "./OrderDetails";
 import { Address } from "./Address";
+import { Users } from "./Users";
 @Entity("order", { schema: "public" })
 export class Orders extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
   @Column("timestamp")
-  timeStamp!: Date;
+  createdAt!: Date;
 
-  @Column("double precision")
-  total!: number;
+  @Column("double precision", { nullable: true })
+  subTotal!: number | null;
+
+  @Column("double precision", { nullable: true })
+  grandTotal!: number | null;
+
+  @Column("varchar", { length: 255, nullable: true })
+  stripePaymentIntentId!: string;
 
   @OneToMany(() => OrderDetails, (ODetails) => ODetails.order)
   orderDetails!: OrderDetails[];
@@ -30,5 +37,12 @@ export class Orders extends BaseEntity {
   address!: Address;
 
   @RelationId((order: Orders) => order.address)
-  addressId!: number;
+  addressId!: string;
+
+  @Index()
+  @ManyToOne(() => Users, (user) => user.orders)
+  user!: Address;
+
+  @RelationId((order: Orders) => order.address)
+  userId!: string;
 }

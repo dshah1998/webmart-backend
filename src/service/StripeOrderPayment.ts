@@ -2,13 +2,13 @@ import Stripe from 'stripe';
 
 import config from '../config';
 
-const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2020-08-27' });
 
 interface Request {
   email?: string;
   amount?: number;
   userId?: string;
-  orderId?: number;
+  orderId?: string;
   isOrder: boolean;
   currency: string;
   confirm?: boolean;

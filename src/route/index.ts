@@ -9,6 +9,7 @@ import userCards from './userCards';
 import testPayment from './testPayment';
 import orderAddress from './orderAddress';
 import carts from './carts';
+import orders from './orders';
 
 const routes = Router();
 routes.get('/', (req, res) => res.status(400).json({ message: 'Access not allowed' }));
@@ -16,6 +17,7 @@ routes.get('/', (req, res) => res.status(400).json({ message: 'Access not allowe
 routes.use('/auth', auth());
 routes.use('/users', users());
 routes.use('/brands', brands());
+routes.use('/orders', orders());
 routes.use('/products', products());
 routes.use('/categories', category());
 routes.use('/userCards', userCards());
