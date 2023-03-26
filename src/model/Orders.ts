@@ -26,6 +26,9 @@ export class Orders extends BaseEntity {
   @Column("double precision", { nullable: true })
   grandTotal!: number | null;
 
+  @Column("varchar", { length: 255, nullable: true })
+  stripePaymentIntentId!: string;
+
   @OneToMany(() => OrderDetails, (ODetails) => ODetails.order)
   orderDetails!: OrderDetails[];
 

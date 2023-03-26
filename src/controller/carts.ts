@@ -31,6 +31,29 @@ export const getAll = () => async (req: Request, res: Response): Promise<void> =
   res.status(200).json({ count, carts });
 };
 
+export const getCartByIdValidation = {
+  params: Joi.object({
+    id: Joi.string().required(),
+  }),
+};
+export const getCartById =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      params: { id },
+    } = req;
+    console.log(id, "---inside cart by id service");
+    const query = getManager()
+      .createQueryBuilder(Carts, "cart")
+      .where("cart.id = :id", { id })
+
+    const cart = await query.getOne();
+    if (!cart) {
+      throw new BadRequestError("Cart not found", "Cart_NOT_FOUND");
+    }
+    res.status(200).json(cart);
+  };
+
 const namePattern = "^[A-za-z]";
 export const createCartValidation = {
   body: Joi.object({
@@ -67,19 +90,23 @@ export const createCart =
   };
 
 export const updateCartByIdValidation = {
-    query: Joi.object({
-        cartsID: Joi.string().uuid({ version: 'uuidv4' }).required(),
+    body: Joi.object({
         quantity : Joi.number().required(),
       }),
+
+    params: Joi.object({ id: Joi.string().required() }),
 };
 
 export const updateCartById =
   () =>
   async (req: Request, res: Response): Promise<void> => {
+
     const {
-        user: { id },
-        query: { cartId,  quantity},
+        user,
+        params : { id },
+        body : { quantity},
     } = req;
+
 
     // const query = getManager()
     //   .createQueryBuilder(Carts, "carts")
@@ -90,11 +117,12 @@ export const updateCartById =
 
     const cartRepo = getRepository(Carts);
 
+    const userId = user.id;
     const query = getManager()
     .createQueryBuilder(Carts, 'cart')
     .leftJoinAndSelect('cart.user', 'user')
-    .where('user.id = :id', { id })
-    .andWhere('cart.id = :cartId', { cartId });
+    .where('user.id = :userId', { userId })
+    .andWhere('cart.id = :id', { id });
 
     
     const cart = await query.getOne();

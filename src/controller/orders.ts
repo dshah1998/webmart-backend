@@ -15,10 +15,6 @@ import { OrderDetails } from "../model/OrderDetails";
 import { Address } from "../model/Address";
 import { orderSuccess } from "../database/seed/htmlTemplates/register";
 
-import { WebMartUserType } from "../constants";
-
-// import { OrderDetailsRepository } from "../repository/OrdersDetail";
-// import { OrdersRepository } from "../repository/Orders";
 import config from "../config";
 
 export const createOrderValidation = {
@@ -112,6 +108,7 @@ export const createOrder =
         amount: 1 || Math.ceil(data.grandTotal ? data.grandTotal : 0),
         stripeCustomerId: user?.stripeCustomerId,
       });
+      await ordersRepo.save(Object.assign({}, order, { stripePaymentIntentId: payment?.PaymentIntent?.id || '' }))
     } catch (error) {
       await orderDetailsRepo.delete(orderDetailIds);
       await ordersRepo.delete(order?.id);
@@ -157,6 +154,8 @@ export const createOrder =
       }
 
       const tokens = grandTotal / 10;
+      const updatedUser = Object.assign({}, user, { totalCredits: (user?.totalCredits || 0) + tokens });
+      await userRepo.save(updatedUser);
 
     res.status(201).json({order, orderDetails});
   };
