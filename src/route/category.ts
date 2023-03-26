@@ -38,7 +38,7 @@ const putupdateCategory = (): Router =>
   router.put(
     '/:id',
     authenticate,
-    // validate(updateCategoryValidation, { context: true }),
+    validate(updateCategoryValidation, { context: true }),
     handleError(updateCategory()),
   );
 

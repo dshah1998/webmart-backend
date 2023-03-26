@@ -101,7 +101,7 @@ export const removeCategory = () => async (req: Request, res: Response): Promise
   } = req;
 
   await getManager().transaction(async (em) => {
-      await em.softDelete(Category, id);
+      await em.delete(Category, id);
   });
 
   res.sendStatus(204);

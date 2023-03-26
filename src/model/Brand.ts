@@ -12,7 +12,7 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id!: number;
   
-    @Column('varchar', { length: 255 })
+    @Column('varchar', { length: 255, nullable: true })
     name!: string;
   
     @Column('integer', { nullable: true })

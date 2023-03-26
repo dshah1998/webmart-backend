@@ -35,7 +35,7 @@ export const createUsersCardValidation = {
     expYear: Joi.string().max(5).required(),
     cvc: Joi.string().max(5).required(),
     name: Joi.string().max(50).required(),
-    isDefault: Joi.boolean().required().default(true),
+    isDefault: Joi.boolean().optional().default(true),
   }),
 };
 export const createUsersCard = () => async (req: Request, res: Response): Promise<void> => {

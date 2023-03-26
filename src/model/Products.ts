@@ -9,11 +9,13 @@ import {
   RelationId,
   BaseEntity,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from "typeorm";
 
 import { Inventory } from "./Inventory";
 import { Category } from "./Category";
 import { Brand } from "./Brand";
+import { Carts } from "./Cart";
 
 @Entity("products", { schema: "public" })
 export class Products extends BaseEntity {
@@ -39,7 +41,7 @@ export class Products extends BaseEntity {
   price!: number | null;
 
   @Column("boolean", { default: () => "false" })
-  isUsed!: boolean;
+  isUsed!: boolean | null;
 
   @Column("int", { nullable: false })
   completedStep!: number;
@@ -51,7 +53,7 @@ export class Products extends BaseEntity {
   } | null;
 
   @OneToOne(() => Inventory, (inventory) => inventory.product)
-  inventory!: Inventory | null;
+  inventory!: Inventory;
 
   @ManyToOne(() => Brand, (brand) => brand.product)
   brand!: Brand | null;
@@ -64,4 +66,7 @@ export class Products extends BaseEntity {
 
   @RelationId((product: Products) => product.category)
   categoryId!: string | null;
+
+  @OneToMany(() => Carts, (cart) => cart.product)
+  cart!: Carts[];
 }
