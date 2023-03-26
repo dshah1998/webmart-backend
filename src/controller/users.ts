@@ -181,8 +181,19 @@ export const becomeSeller =
       accountNumber,
       user,
     });
-    console.log("In becomeSeller ", sellerInfo);
-    sellerInfo = await sellerInformationRepository.save(sellerInfo);
+    let userInfo = await getCustomRepository(UsersRepository).findOne({
+      where: { id: user.id },
+    });
+
+    if (userInfo) {
+      sellerInfo = await sellerInformationRepository.save(sellerInfo);
+    }
+
+    if (sellerInfo) {
+      userInfo.userType.push("seller");
+      const usersRepo = getRepository(Users);
+      const userUpdated = usersRepo.save(userInfo);
+    }
 
     res.status(201).json({
       companyRegistrationNumber,
