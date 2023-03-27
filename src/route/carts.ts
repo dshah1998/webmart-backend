@@ -48,7 +48,7 @@ const deleteUpdateCart = (): Router =>
   router.delete(
     '/:id',
     authenticate,
-    checkUserType(WebMartUserType.ADMIN),
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.USER, WebMartUserType.SELLER),
     validate(deleteCartValidation, { context: true }),
     handleError(removeCart()),
   );

@@ -11,6 +11,7 @@ import { BadRequestError, NotFoundError } from "../error";
 
 import { Orders } from "../model/Orders";
 import { Users } from "../model/Users";
+import { Carts } from "../model/Cart";
 import { OrderDetails } from "../model/OrderDetails";
 import { Address } from "../model/Address";
 import { orderSuccess } from "../database/seed/htmlTemplates/register";
@@ -35,6 +36,7 @@ export const createOrder =
     const userRepo = getRepository(Users);
     const userAddressRepo = getRepository(Address);
     const orderDetailsRepo = getRepository(OrderDetails);
+    const cartRepo = getRepository(Carts);
 
     // let where: FindConditions<Address> = {};
     // if (addressId) where = { ...where, id: addressId };
@@ -105,7 +107,7 @@ export const createOrder =
         userId: user?.id,
         email: user?.email,
         orderId: order?.id,
-        amount: 1 || Math.ceil(data.grandTotal ? data.grandTotal : 0),
+        amount: Math.ceil(data.grandTotal ? data.grandTotal : 0),
         stripeCustomerId: user?.stripeCustomerId,
       });
       await ordersRepo.save(Object.assign({}, order, { stripePaymentIntentId: payment?.PaymentIntent?.id || '' }))
@@ -152,6 +154,8 @@ export const createOrder =
       } catch (error) {
         console.error('Error in sending the mail');
       }
+
+      await cartRepo.delete(cartIds);
 
       const tokens = grandTotal / 10;
       const updatedUser = Object.assign({}, user, { totalCredits: (user?.totalCredits || 0) + tokens });
