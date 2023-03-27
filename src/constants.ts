@@ -7,6 +7,7 @@ export enum Token {
 export enum WebMartUserType {
   ADMIN = "admin",
   USER = "user",
+  SELLER = "seller"
 }
 
 export enum ApiMethods {

@@ -22,7 +22,7 @@ const router = Router();
 const getProducts = (): Router =>
   router.get(
     '/',
-    authenticate,
+    // authenticate,
     validate(getProductsValidation, { context: true }),
     handleError(getAll()),
   );
@@ -31,7 +31,7 @@ const postCreateProduct = (): Router =>
   router.post(
     '/',
     authenticate,
-    checkUserType(WebMartUserType.ADMIN),
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.SELLER, WebMartUserType.USER),
     validate(createProductValidation, { context: true }),
     handleError(createProduct()),
   );
@@ -40,7 +40,7 @@ const putupdateProduct = (): Router =>
   router.put(
     '/:id',
     authenticate,
-    checkUserType(WebMartUserType.ADMIN, WebMartUserType.USER),
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.SELLER, WebMartUserType.USER),
     validate(updateProductValidation, { context: true }),
     handleError(updateProduct()),
   );
@@ -49,7 +49,7 @@ const deleteProduct = (): Router =>
   router.delete(
     '/:id',
     authenticate,
-    checkUserType(WebMartUserType.ADMIN),
+    checkUserType(WebMartUserType.ADMIN, WebMartUserType.SELLER, WebMartUserType.USER),
     validate(deleteProductValidation, { context: true }),
     handleError(removeProduct()),
   );
@@ -57,7 +57,7 @@ const deleteProduct = (): Router =>
 const getByIdProduct = (): Router =>
   router.get(
     '/:id',
-    authenticate,
+    // authenticate,
     validate(getProductByIdValidation, { context: true }),
     handleError(getProductById()),
   );
