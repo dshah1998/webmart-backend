@@ -21,7 +21,7 @@ import config from "../config";
 export const createOrderValidation = {
   body: Joi.object({
     stripeCardId: Joi.string().required(),
-    addressId: Joi.number().integer().min(1).optional(),
+    addressId: Joi.string().required(),
   }),
 };
 export const createOrder =
