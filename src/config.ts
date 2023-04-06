@@ -25,17 +25,9 @@ type Environment = {
   NODE_ENV: string;
   PORT: number;
   SERVER_URL: string;
-  LOG_LEVEL: string;
   SECRET_HEX: string;
   ACCESS_TOKEN_LIFETIME_MIN: number;
   REFRESH_TOKEN_LIFETIME_MIN: number;
-  MAX_FILE_SIZE_IN_MB: number;
-  MAX_APK_FILE_SIZE_IN_MB: number;
-  GLOBAL_REQUEST_TIMEOUT_IN_MS: number;
-  OPEN_API_MAX_REQUEST: number;
-  OPEN_API_WINDOW_IN_MS: number;
-  CLOSED_API_MAX_REQUEST: number;
-  CLOSED_API_WINDOW_IN_MS: number;
   FRONTEND_BASE_URL: string;
   FRONTEND_CHANGE_PASSWORD_URL: string;
   FRONTEND_VERIFY_EMAIL_URL: string;
@@ -45,7 +37,6 @@ type Environment = {
   POSTGRES_PASSWORD: string;
   POSTGRES_DB: string;
   POSTGRES_PORT: number;
-  CACHE_DURATION_IN_MS: number;
   GMAIL_USER: string;
   ADMIN_CONTACT_EMAIL: string;
   GMAIL_CLIENT_ID: string;
@@ -54,9 +45,6 @@ type Environment = {
   GMAIL_PASSWORD: string;
   STRIPE_PUBLISHABLE_KEY: string;
   STRIPE_SECRET_KEY: string;
-  STRIPE_WEBHOOK_ENDPOINT_SECRET: string;
-  STRIPE_AUTH_URL: string;
-  STRIPE_CLIENT_ID: string;
 };
 
 export type Env = Readonly<Environment & CleanedEnvAccessors>;
@@ -68,20 +56,9 @@ const env: Env = cleanEnv<Environment>(process.env, {
   }),
   PORT: port({ default: 3333 }),
   SERVER_URL: url(),
-  LOG_LEVEL: str({
-    default: "error",
-    choices: ["error", "warn", "info", "http", "verbose", "debug", "silly"],
-  }),
   SECRET_HEX: str(),
   ACCESS_TOKEN_LIFETIME_MIN: num(),
   REFRESH_TOKEN_LIFETIME_MIN: num(),
-  MAX_FILE_SIZE_IN_MB: num({ default: 1 }),
-  MAX_APK_FILE_SIZE_IN_MB: num({ default: 1 }),
-  GLOBAL_REQUEST_TIMEOUT_IN_MS: num({ default: 1000 * 60 * 5 }),
-  OPEN_API_MAX_REQUEST: num({ default: 3 }),
-  OPEN_API_WINDOW_IN_MS: num({ default: 1000 }),
-  CLOSED_API_MAX_REQUEST: num({ default: 3 }),
-  CLOSED_API_WINDOW_IN_MS: num({ default: 1000 }),
   FRONTEND_BASE_URL: str(),
   FRONTEND_CHANGE_PASSWORD_URL: str(),
   FRONTEND_VERIFY_EMAIL_URL: str(),
@@ -92,9 +69,8 @@ const env: Env = cleanEnv<Environment>(process.env, {
   POSTGRES_HOST: host({ default: "localhost" }),
   POSTGRES_USER: str(),
   POSTGRES_PASSWORD: str(),
-  POSTGRES_DB: str({ default: "test" }),
+  POSTGRES_DB: str({ default: "webmart" }),
   POSTGRES_PORT: port({ default: 5432 }),
-  CACHE_DURATION_IN_MS: num({ default: 1000 * 7 }),
   GMAIL_USER: email(),
   ADMIN_CONTACT_EMAIL: email(),
   GMAIL_PASSWORD: str(),
@@ -103,9 +79,6 @@ const env: Env = cleanEnv<Environment>(process.env, {
   GMAIL_REFRESH_TOKEN: str({ default: undefined }),
   STRIPE_PUBLISHABLE_KEY: str(),
   STRIPE_SECRET_KEY: str(),
-  STRIPE_WEBHOOK_ENDPOINT_SECRET: str(),
-  STRIPE_AUTH_URL: str(),
-  STRIPE_CLIENT_ID: str(),
 });
 
 export default env;
