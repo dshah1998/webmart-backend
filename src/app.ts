@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { ValidationError } from 'express-validation';
 import cors from "cors";
-import helmet from 'helmet';
 import multer from 'multer';
 import compression from 'compression';
 import cookieParser from "cookie-parser";
@@ -14,7 +13,6 @@ const app = express();
 
 app.set("port", config.PORT);
 
-app.use(helmet());
 app.use(cookieParser());
 app.use(express.json({ limit: '5mb' }));
 

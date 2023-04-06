@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import Database from './database';
 import app from './app';
 
