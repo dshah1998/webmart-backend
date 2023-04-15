@@ -14,6 +14,9 @@ import {
   verifyEmail,
   becomeSeller,
   becomeSellerValidation,
+  sellerPendingRequest,
+  sellerRequestDecisionValidation,
+  sellerRequestDecision,
 } from "../controller/users";
 
 const router = Router();
@@ -61,6 +64,22 @@ const postBecomeSeller = (): Router => {
   );
 };
 
+const getAllSellerPendingRequest = (): Router => {
+  return router.get(
+    "/pendingSellerRequest",
+    handleError(sellerPendingRequest())
+  );
+};
+
+const postSellerRequestDecision = (): Router => {
+  return router.post(
+    "/sellerRequestDecision",
+    validate(sellerRequestDecisionValidation, { context: true }),
+    authenticate,
+    handleError(sellerRequestDecision())
+  );
+};
+
 export default (): Router =>
   router.use([
     getProfile(),
@@ -69,4 +88,6 @@ export default (): Router =>
     postUpdatePassword(),
     patchChangePassword(),
     postBecomeSeller(),
+    getAllSellerPendingRequest(),
+    postSellerRequestDecision(),
   ]);
