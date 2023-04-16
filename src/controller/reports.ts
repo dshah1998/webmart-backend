@@ -10,15 +10,19 @@ import { WebMartUserType } from "../constants";
 export const getCustomerReportValidation = {
   query: Joi.object({
     search: Joi.string().max(50).default(""),
+    page: Joi.number().integer().min(1).default(1),
+    perPage: Joi.number().integer().min(1).default(10),
   }),
 };
 export const customersReport =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
-      query: { search },
+      query: { search, page, perPage },
     } = req;
 
+    const limit = Number(perPage);
+    const offset = (Number(page) - 1) * limit;
     const query = getManager()
       .createQueryBuilder(Users, "user")
       .select([
@@ -35,12 +39,22 @@ export const customersReport =
         'count(orders.user ) "TotalOrders"',
       ])
       .where("user.userType @> :userType", { userType: [WebMartUserType.USER] })
-      .groupBy("user.id");
+      .groupBy("user.id")
+      .offset(offset)
+      .limit(limit);
 
     if (search && search !== "") {
-      query.andWhere("user.fullName like :fullName", {
-        fullName: "%" + search + "%",
-      });
+      query.andWhere(
+        new Brackets((qb) => {
+          return qb
+            .orWhere("user.firstName like :fullName", {
+              fullName: "%" + search + "%",
+            })
+            .orWhere("user.lastName like :fullName", {
+              fullName: "%" + search + "%",
+            });
+        })
+      );
     }
 
     const customers = await query.getRawMany();
@@ -52,15 +66,19 @@ export const customersReport =
 export const getProductReportValidation = {
   query: Joi.object({
     search: Joi.string().max(50).default(""),
+    page: Joi.number().integer().min(1).default(1),
+    perPage: Joi.number().integer().min(1).default(10),
   }),
 };
 export const productReport =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
-      query: { search },
+      query: { search, page, perPage  },
     } = req;
 
+    const limit = Number(perPage);
+    const offset = (Number(page) - 1) * limit;
     const query = getManager()
       .createQueryBuilder(Products, "products")
       .leftJoin("products.orderDetails", "orderdetails")
@@ -74,7 +92,9 @@ export const productReport =
       .groupBy("products.id")
       .addGroupBy("brand.name")
       .addGroupBy("category.type")
-      .addGroupBy("orderdetails.product");
+      .addGroupBy("orderdetails.product")
+      .offset(offset)
+      .limit(limit);
 
     if (search && search !== "") {
       query.andWhere(
@@ -97,15 +117,21 @@ export const productReport =
 export const getOrdersReportValidation = {
   query: Joi.object({
     search: Joi.string().max(50).default(""),
+    startDate: Joi.date().optional(),
+    endDate: Joi.date().optional(),
+    page: Joi.number().integer().min(1).default(1),
+    perPage: Joi.number().integer().min(1).default(10),
   }),
 };
 export const ordersReport =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const {
-      query: { search },
+      query: { search, startDate, endDate, page, perPage  },
     } = req;
 
+    const limit = Number(perPage);
+    const offset = (Number(page) - 1) * limit;
     const query = getManager()
       .createQueryBuilder(OrderDetails, "orderDetails")
       .select([
@@ -122,14 +148,26 @@ export const ordersReport =
       .leftJoin("order.address", "address")
       .addSelect(["user.email", "user.firstName", "user.lastName", "user.id"])
       .leftJoin("orderDetails.product", "product")
-      .addSelect(["product.id", "product.name"]);
+      .addSelect(["product.id", "product.name"])
+      .offset(offset)
+      .limit(limit);
 
+    if (startDate && endDate) {
+      query.andWhere("order.createdAt BETWEEN :startDate AND :endDate", {
+        startDate,
+        endDate,
+      });
+    }
     if (search && search !== null) {
       query.andWhere(
         new Brackets((qb) => {
-          return qb.orWhere("user.full_name like :name", {
-            name: "%" + search + "%",
-          });
+          return qb
+            .orWhere("user.firstName like :name", {
+              name: "%" + search + "%",
+            })
+            .orWhere("user.lastName like :name", {
+              name: "%" + search + "%",
+            });
         })
       );
     }
