@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { validate } from "express-validation";
 
-import { authenticate, handleError } from "../middleware";
+import { authenticate, handleError, checkUserType } from "../middleware";
 import {
+  getAll,
+  getAllUsersValidation,
   changePassword,
   changePasswordValidation,
   forgetPassword,
@@ -14,14 +16,24 @@ import {
   verifyEmail,
   becomeSeller,
   becomeSellerValidation,
+  deleteUserValidation,
+  removeUser
   sellerPendingRequest,
   sellerRequestDecisionValidation,
   sellerRequestDecision,
   updateBecomeSeller,
   getSellerInfo,
 } from "../controller/users";
+import { WebMartUserType } from '../constants';
 
 const router = Router();
+
+const getAllUsers = (): Router =>
+  router.get(
+    "/all",
+    validate(getAllUsersValidation),
+    handleError(getAll())
+  );
 
 const patchChangePassword = (): Router =>
   router.patch(
@@ -55,16 +67,22 @@ const postVerifyEmail = (): Router =>
 const getProfile = (): Router =>
   router.get("/profile/me", authenticate, handleError(profile()));
 
-const postBecomeSeller = (): Router => {
-  console.log("Inside2-------");
-
-  return router.post(
+const postBecomeSeller = (): Router =>
+  router.post(
     "/become-seller",
     validate(becomeSellerValidation, { context: true }),
     authenticate,
     handleError(becomeSeller())
   );
-};
+
+  const deleteUser = (): Router =>
+  router.delete(
+    '/:id',
+    authenticate,
+    checkUserType(WebMartUserType.ADMIN),
+    validate(deleteUserValidation, { context: true }),
+    handleError(removeUser()),
+  );
 
 const putBecomeSeller = (): Router =>
   router.put("/become-seller", authenticate, handleError(updateBecomeSeller()));
@@ -90,6 +108,8 @@ const getSeller = (): Router =>
 export default (): Router =>
   router.use([
     getProfile(),
+    getAllUsers(),
+    deleteUser(),
     postVerifyEmail(),
     postForgetPassword(),
     postUpdatePassword(),

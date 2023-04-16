@@ -15,6 +15,10 @@ export const createUsersCardValidation = {
     isDefault: Joi.boolean().optional().default(true),
   }),
 };
+/**
+ * Title: Create Stripe Card API;
+ * Created By: Sarang Patel;
+ */
 export const createUsersCard = () => async (req: Request, res: Response): Promise<void> => {
   const {
     user,

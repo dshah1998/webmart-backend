@@ -1,3 +1,7 @@
+/**
+ * Title: Parent class of all the Errors;
+ * Created By: Sarang Patel;
+ */
 export class AppError extends Error {
   constructor(
     public readonly message = "Internal server error",
@@ -9,6 +13,10 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * Title: Bad Request Error Class (status code = 400);
+ * Created By: Sarang Patel;
+ */
 export class BadRequestError extends AppError {
   public readonly statusCode = 400;
 
@@ -20,6 +28,10 @@ export class BadRequestError extends AppError {
   }
 }
 
+/**
+ * Title: Un authorize Error Class (status code = 401);
+ * Created By: Sarang Patel;
+ */
 export class UnauthorizedError extends AppError {
   public readonly statusCode = 401;
 
@@ -31,6 +43,10 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+/**
+ * Title: Entity not found Error Class (status code = 404);
+ * Created By: Sarang Patel;
+ */
 export class NotFoundError extends AppError {
   public readonly statusCode = 404;
 
@@ -42,6 +58,11 @@ export class NotFoundError extends AppError {
   }
 }
 
+/**
+ * Title: Child of Entity not found Error Class (status code = 404);
+ * Created By: Sarang Patel;
+ * Description: This will add the error message when it calls the NotFoundError class.
+ */
 export class EntityNotFoundError<
   T extends { toString(): string }
 > extends NotFoundError {
@@ -53,6 +74,10 @@ export class EntityNotFoundError<
   }
 }
 
+/**
+ * Title: Forbidden Error Class (status code = 403);
+ * Created By: Sarang Patel;
+ */
 export class ForbiddenError extends AppError {
   public readonly statusCode = 403;
 
@@ -64,6 +89,10 @@ export class ForbiddenError extends AppError {
   }
 }
 
+/**
+ * Title: Internal Server Error Class (status code = 403);
+ * Created By: Sarang Patel;
+ */
 export class InternalServerError extends AppError {
   public readonly statusCode = 500;
 }

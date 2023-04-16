@@ -5,10 +5,12 @@ import {
   ManyToOne,
   RelationId,
   BaseEntity,
+  JoinColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
 import { Orders } from "./Orders";
+import { Products } from "./Products";
 
 @Entity("order_details", { schema: "public" })
 export class OrderDetails extends BaseEntity {
@@ -36,4 +38,8 @@ export class OrderDetails extends BaseEntity {
 
   @RelationId((orderDetails: OrderDetails) => orderDetails.order)
   orderId!: string;
+
+  @ManyToOne(() => Products, (product) => product.cart)
+  @JoinColumn()
+  product!: Products;
 }

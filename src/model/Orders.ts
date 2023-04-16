@@ -41,7 +41,7 @@ export class Orders extends BaseEntity {
 
   @Index()
   @ManyToOne(() => Users, (user) => user.orders)
-  user!: Address;
+  user!: Users;
 
   @RelationId((order: Orders) => order.address)
   userId!: string;

@@ -1,4 +1,9 @@
-import { getRepository, getCustomRepository, getManager } from "typeorm";
+import {
+  getRepository,
+  getCustomRepository,
+  getManager,
+  Brackets,
+} from "typeorm";
 import { Request, Response } from "express";
 import { Joi } from "express-validation";
 
@@ -15,12 +20,61 @@ import { SellerInformation } from "../model/SellerInformation";
 import { MailService } from "../service/Mail";
 import { sellerMessage } from "../database/seed/htmlTemplates/register";
 
+export const getAllUsersValidation = {
+  query: Joi.object({
+    search: Joi.string().max(50).default(""),
+    userType: Joi.string().allow(null).optional().default(null),
+    page: Joi.number().integer().min(1).default(1),
+    perPage: Joi.number().integer().min(1).default(10),
+  }),
+};
+export const getAll =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      query: { search, userType, page, perPage },
+    } = req;
+
+    const limit = Number(perPage);
+    const offset = (Number(page) - 1) * limit;
+    const query = getManager().createQueryBuilder(Users, "user");
+
+    if (offset && limit) {
+      query.offset(Number(offset)).limit(limit);
+    }
+
+    if (userType && userType !== "") {
+      query.where("user.userType @> :userType", { userType: [userType] }); // To check the array type
+    }
+
+    if (search && search !== "") {
+      query.andWhere(
+        new Brackets((qb) => {
+          return qb
+            .orWhere("user.firstName like :fullName", {
+              fullName: "%" + search + "%",
+            })
+            .orWhere("user.lastName like :fullName", {
+              fullName: "%" + search + "%",
+            });
+        })
+      );
+    }
+
+    const [users, count] = await query.getManyAndCount();
+    res.status(200).json({ count, users });
+  };
+
 export const changePasswordValidation = {
   body: Joi.object({
     oldPassword: Joi.string().min(6).max(128).required(),
     newPassword: Joi.string().min(6).max(128).required(),
   }),
 };
+/**
+ * Title: Change Password API;
+ * Created By: Sarang Patel;
+ */
 export const changePassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -64,6 +118,10 @@ export const forgetPasswordValidation = {
     email: Joi.string().lowercase().max(255).email().optional(),
   }),
 };
+/**
+ * Title: Forget Password API;
+ * Created By: Sarang Patel;
+ */
 export const forgetPassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -73,6 +131,10 @@ export const forgetPassword =
     res.json(result);
   };
 
+/**
+ * Title: Get Profile by token API;
+ * Created By: Sarang Patel;
+ */
 export const profile =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -99,6 +161,10 @@ export const updatePasswordValidation = {
       .required(),
   }),
 };
+/**
+ * Title: Update Password API;
+ * Created By: Sarang Patel;
+ */
 export const updatePassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -213,6 +279,42 @@ export const becomeSeller =
     });
   };
 
+export const deleteUserValidation = {
+  params: Joi.object({
+    id: Joi.string().uuid({ version: "uuidv4" }).required(),
+  }),
+};
+/**
+ * Title: Delete Users API;
+ * Created By: Sarang Patel;
+ */
+export const removeUser =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      params: { id },
+    } = req;
+
+    const userRepo = getRepository(Users);
+    const user = await userRepo.findOne(id);
+
+    if (!user) {
+      throw new BadRequestError(
+        "User is already deleted",
+        "USER_ALREADY_DELETED"
+      );
+    }
+
+    try {
+      await userRepo.delete(id);
+    } catch (error) {
+      throw new BadRequestError(
+        "Something went wrong in deletation of the User",
+        "USER_ERROR_DELETE"
+      );
+    }
+    res.sendStatus(204);
+  };
 export const updateBecomeSeller =
   () =>
   async (req: Request, res: Response): Promise<void> => {
