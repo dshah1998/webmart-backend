@@ -6,12 +6,12 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import { Address } from './Address';
-import { Cards } from './Cards';
-import { Inventory } from './Inventory';
-import { Orders } from './Orders';
-import { WebMartUserType } from '../constants';
-import { Carts } from './Cart';
+import { Address } from "./Address";
+import { Cards } from "./Cards";
+import { Inventory } from "./Inventory";
+import { Orders } from "./Orders";
+import { WebMartUserType } from "../constants";
+import { Carts } from "./Cart";
 
 @Entity("users", { schema: "public" })
 export class Users extends BaseEntity {
@@ -53,6 +53,9 @@ export class Users extends BaseEntity {
 
   @Column("boolean", { default: () => "true" })
   isActive!: boolean;
+
+  @Column("boolean", { nullable: true })
+  sellerStatus: boolean;
 
   @Column("double precision", { nullable: true })
   totalCredits!: number | null;
