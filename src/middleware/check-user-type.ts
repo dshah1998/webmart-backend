@@ -3,6 +3,13 @@ import { RequestHandler } from "express";
 import { ForbiddenError } from "../error";
 import { WebMartUserType } from "../constants";
 
+/**
+ * Title: Check user_type Middleware;
+ * Created By: Sarang Patel;
+ * Description: 
+ *  1) It just take user from the request and if user not found throw the error.
+ *  2) If the given user_type is in the user_type of founded user then just call the next() middleware.
+ */
 export const checkUserType =
   (...userTypes: WebMartUserType[]): RequestHandler =>
   (req, _, next): void => {

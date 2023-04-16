@@ -1,4 +1,4 @@
-import { getRepository, getCustomRepository } from "typeorm";
+import { getRepository, getCustomRepository, getManager } from "typeorm";
 import { Request, Response } from "express";
 import { Joi } from "express-validation";
 
@@ -12,12 +12,38 @@ import { Users } from "../model/Users";
 import { WebMartUserType } from "../constants";
 import { SellerInformationRepository } from "../repository/SellerInformation";
 
+export const getAllUsersValidation = {
+  query: Joi.object({
+    userType: Joi.string().allow(null).optional().default(null),
+  }),
+};
+export const getAll =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      query: { userType },
+    } = req;
+
+    const query = getManager().createQueryBuilder(Users, "user");
+
+    if (userType && userType !== "") {
+      query.where("user.userType @> :userType", { userType: [userType] }); // To check the array type
+    }
+
+    const [users, count] = await query.getManyAndCount();
+    res.status(200).json({ count, users });
+  };
+
 export const changePasswordValidation = {
   body: Joi.object({
     oldPassword: Joi.string().min(6).max(128).required(),
     newPassword: Joi.string().min(6).max(128).required(),
   }),
 };
+/**
+ * Title: Change Password API;
+ * Created By: Sarang Patel;
+ */
 export const changePassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -61,6 +87,10 @@ export const forgetPasswordValidation = {
     email: Joi.string().lowercase().max(255).email().optional(),
   }),
 };
+/**
+ * Title: Forget Password API;
+ * Created By: Sarang Patel;
+ */
 export const forgetPassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -70,6 +100,10 @@ export const forgetPassword =
     res.json(result);
   };
 
+/**
+ * Title: Get Profile by token API;
+ * Created By: Sarang Patel;
+ */
 export const profile =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -95,6 +129,10 @@ export const updatePasswordValidation = {
       .required(),
   }),
 };
+/**
+ * Title: Update Password API;
+ * Created By: Sarang Patel;
+ */
 export const updatePassword =
   () =>
   async (req: Request, res: Response): Promise<void> => {

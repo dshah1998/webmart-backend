@@ -52,7 +52,7 @@ class StripeOrderPaymentService {
       payment_method: request?.stripeCardId,
       confirm: request?.confirm,
       setup_future_usage: 'on_session',
-      receipt_email: request?.email || 'test@gmail.com',
+      receipt_email: request?.email || 'sarangp3010@gmail.com',
       metadata: {
         user_id: request?.userId || '',
         order_id: request?.orderId || '',

@@ -2,6 +2,10 @@ import { createConnection, Connection } from "typeorm";
 
 import postgreTypeormConfig from "../config/postgreTypeorm";
 
+/**
+ * Title: Database Connection Service;
+ * Created By: Sarang Patel;
+ */
 export default class Database {
   static #instance: Database;
 
@@ -19,7 +23,9 @@ export default class Database {
     return this.#connection;
   }
 
-  // TODO: MongoDB and MySQL connection.
+  /**
+   * Method that connects the database to the server.
+   */
   async connect(): Promise<Connection> {
     [this.#connection] = await Promise.all([
       createConnection(postgreTypeormConfig),

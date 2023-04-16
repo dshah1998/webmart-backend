@@ -8,6 +8,8 @@ import category from './category';
 import userCards from './userCards';
 import testPayment from './testPayment';
 import orderAddress from './orderAddress';
+import dashboard from './dashboard';
+import report from './reports';
 import carts from './carts';
 import orders from './orders';
 
@@ -18,7 +20,9 @@ routes.use('/auth', auth());
 routes.use('/users', users());
 routes.use('/brands', brands());
 routes.use('/orders', orders());
+routes.use('/reports', report());
 routes.use('/products', products());
+routes.use('/dashboard', dashboard());
 routes.use('/categories', category());
 routes.use('/userCards', userCards());
 routes.use('/testPayment', testPayment());

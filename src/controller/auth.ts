@@ -43,6 +43,10 @@ export const signupValidation = {
       .required(),
   }),
 };
+/**
+ * Title: Signup API;
+ * Created By: Sarang Patel;
+ */
 export const signUp =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -160,6 +164,10 @@ export const loginValidation = {
     password: Joi.string().min(6).max(128).required(),
   }),
 };
+/**
+ * Title: Login API;
+ * Created By: Sarang Patel;
+ */
 export const login =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -233,6 +241,10 @@ export const refreshTokenValidation = {
     refreshToken: Joi.string().required(),
   }),
 };
+/**
+ * Title: Refresh token API;
+ * Created By: Sarang Patel;
+ */
 export const refreshToken =
   () =>
   async (req: Request, res: Response): Promise<void> => {
