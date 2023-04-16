@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validate } from "express-validation";
 
-import { authenticate, handleError } from "../middleware";
+import { authenticate, handleError, checkUserType } from "../middleware";
 import {
   getAll,
   getAllUsersValidation,
@@ -16,7 +16,10 @@ import {
   verifyEmail,
   becomeSeller,
   becomeSellerValidation,
+  deleteUserValidation,
+  removeUser
 } from "../controller/users";
+import { WebMartUserType } from '../constants';
 
 const router = Router();
 
@@ -67,10 +70,20 @@ const postBecomeSeller = (): Router =>
     handleError(becomeSeller())
   );
 
+  const deleteUser = (): Router =>
+  router.delete(
+    '/:id',
+    authenticate,
+    checkUserType(WebMartUserType.ADMIN),
+    validate(deleteUserValidation, { context: true }),
+    handleError(removeUser()),
+  );
+
 export default (): Router =>
   router.use([
     getProfile(),
     getAllUsers(),
+    deleteUser(),
     postVerifyEmail(),
     postForgetPassword(),
     postUpdatePassword(),
