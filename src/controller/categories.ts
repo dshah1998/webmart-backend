@@ -13,6 +13,10 @@ export const getCategoriesValidation = {
     type: Joi.string().max(255).regex(new RegExp(namePattern)).default(null),
   }),
 };
+/**
+ * Title: List category API;
+ * Created By: Sarang Patel;
+ */
 export const getAll = () => async (req: Request, res: Response): Promise<void> => {
   const {
     query: { type },
@@ -37,6 +41,10 @@ export const createCategoryValidation = {
     properties: Joi.array().items(Joi.string().allow(null)).allow(null).default(null),
   }),
 };
+/**
+ * Title: Create category API;
+ * Created By: Sarang Patel;
+ */
 export const createCategory = () => async (req: Request, res: Response): Promise<void> => {
   const {
     user,
@@ -66,6 +74,10 @@ export const updateCategoryValidation = {
     properties: Joi.array().items(Joi.string().allow(null)).allow(null).default(null),
   }),
 };
+/**
+ * Title: Update category API;
+ * Created By: Sarang Patel;
+ */
 export const updateCategory = () => async (req: Request, res: Response): Promise<void> => {
   const {
     user,
@@ -95,6 +107,10 @@ export const updateCategory = () => async (req: Request, res: Response): Promise
 export const deleteCategoryValidation = {
   params: Joi.object({ id: Joi.number().required() }),
 };
+/**
+ * Title: Delete category API;
+ * Created By: Sarang Patel;
+ */
 export const removeCategory = () => async (req: Request, res: Response): Promise<void> => {
   const {
     params: { id },

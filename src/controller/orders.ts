@@ -1,4 +1,4 @@
-import { getRepository, FindConditions } from "typeorm";
+import { getRepository, getManager, Brackets } from "typeorm";
 import { Request, Response } from "express";
 import { Joi } from "express-validation";
 import { sumBy, omit } from "lodash";
@@ -18,12 +18,113 @@ import { orderSuccess } from "../database/seed/htmlTemplates/register";
 
 import config from "../config";
 
+export const getAllOrderValidation = {
+  query: Joi.object({
+    productId: Joi.string().allow(null).optional().default(null),
+    search: Joi.string().max(50).default(null).optional(),
+  }),
+};
+export const getAll =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      query: { search },
+    } = req;
+
+    const query = getManager()
+      .createQueryBuilder(Orders, "order")
+      .leftJoin("order.orderDetails", "orderDetails")
+      .addSelect([
+        "orderDetails.id",
+        "orderDetails.quantity",
+        "orderDetails.price",
+        "orderDetails.discount",
+        "orderDetails.subTotal",
+        "orderDetails.grandTotal",
+      ])
+      .leftJoin("orderDetails.product", "product")
+      .addSelect([
+        "product.id",
+        "product.thumbnailImage",
+        "product.name",
+        "product.images",
+      ])
+      .leftJoinAndSelect("order.user", "user");
+
+    if (search && search !== null) {
+      query.andWhere(
+        new Brackets((qb) => {
+          return qb
+            .orWhere("product.name like :name", { name: "%" + search + "%" })
+            .orWhere("user.firstName like :name", {
+              name: "%" + search + "%",
+            })
+            .orWhere("user.lastName like :name", {
+              name: "%" + search + "%",
+            })
+            .orWhere("user.email like :name", {
+              name: "%" + search + "%",
+            });
+        })
+      );
+    }
+    if (!user?.userType?.includes("admin")) {
+      query.where("user.id = :userId", { userId: user?.id });
+    }
+
+    const [orders, count] = await query.getManyAndCount();
+    res.status(200).json({ orders, count });
+  };
+
+export const getOrderByIdValidation = {
+  params: Joi.object({
+    id: Joi.string().uuid({ version: "uuidv4" }).required(),
+  }),
+};
+export const getById =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      params: { id },
+    } = req;
+
+    const query = getManager()
+      .createQueryBuilder(Orders, "order")
+      .where("order.id = :id", { id })
+      .leftJoin("order.orderDetails", "orderDetails")
+      .addSelect([
+        "orderDetails.id",
+        "orderDetails.quantity",
+        "orderDetails.price",
+        "orderDetails.discount",
+        "orderDetails.subTotal",
+        "orderDetails.grandTotal",
+      ])
+      .leftJoin("orderDetails.product", "product")
+      .addSelect([
+        "product.id",
+        "product.thumbnailImage",
+        "product.name",
+        "product.images",
+      ])
+      .leftJoinAndSelect("order.user", "user");
+
+    const [orders, count] = await query.getManyAndCount();
+    res.status(200).json({ orders, count });
+  };
+
 export const createOrderValidation = {
   body: Joi.object({
     stripeCardId: Joi.string().required(),
     addressId: Joi.string().required(),
   }),
 };
+/**
+ * Title: Order API;
+ * Created By: Sarang Patel;
+ */
 export const createOrder =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -76,7 +177,7 @@ export const createOrder =
 
     // TODO: manage relations
     try {
-      orderDetails = orderDetails.map((details) =>
+      orderDetails = orderDetails?.map((details) =>
         omit(Object.assign({}, { ...details, order }), ["id"])
       );
 
@@ -110,7 +211,11 @@ export const createOrder =
         amount: Math.ceil(data.grandTotal ? data.grandTotal : 0),
         stripeCustomerId: user?.stripeCustomerId,
       });
-      await ordersRepo.save(Object.assign({}, order, { stripePaymentIntentId: payment?.PaymentIntent?.id || '' }))
+      await ordersRepo.save(
+        Object.assign({}, order, {
+          stripePaymentIntentId: payment?.PaymentIntent?.id || "",
+        })
+      );
     } catch (error) {
       await orderDetailsRepo.delete(orderDetailIds);
       await ordersRepo.delete(order?.id);
@@ -118,48 +223,47 @@ export const createOrder =
     }
 
     try {
-        const mailService = new MailService();
-        const mailBody = {
-          to: `${user?.email}, ${config.ADMIN_CONTACT_EMAIL}`,
-          email: user?.email,
-          orderId: order?.id.toString(),
-          total: data?.grandTotal.toString(),
-          subject: "Webmart - Order Placed",
-          html: (orderSuccess || "")
-          .replace(new RegExp("{name}", "g"), `${user?.firstName} ${user?.lastName}` || "")
+      const mailService = new MailService();
+      const mailBody = {
+        to: `${user?.email}, ${config.ADMIN_CONTACT_EMAIL}`,
+        email: user?.email,
+        orderId: order?.id.toString(),
+        total: data?.grandTotal.toString(),
+        subject: "Webmart - Order Placed",
+        html: (orderSuccess || "")
           .replace(
-            new RegExp("{status}", "g"),
-            "created"
-          ).replace(
+            new RegExp("{name}", "g"),
+            `${user?.firstName} ${user?.lastName}` || ""
+          )
+          .replace(new RegExp("{status}", "g"), "created")
+          .replace(
             new RegExp("{orderId}", "g"),
-            `${order?.id.toString() || 'AwedrteosffsdFSW'}`
-          ).replace(
-            new RegExp("{qty}", "g"),
-            (qty || 0).toString()
-          ).replace(
+            `${order?.id.toString() || "AwedrteosffsdFSW"}`
+          )
+          .replace(new RegExp("{qty}", "g"), (qty || 0).toString())
+          .replace(
             new RegExp("{salesTax}", "g"),
             (totalSalesTax || 0).toString()
-          ).replace(
-            new RegExp("{subTotal}", "g"),
-            (subTotal || 0).toString()
-          ).replace(
+          )
+          .replace(new RegExp("{subTotal}", "g"), (subTotal || 0).toString())
+          .replace(
             new RegExp("{grandTotal}", "g"),
             (grandTotal || 0).toString()
-          ).replace(
-            new RegExp("{admin}", "g"),
-            "sarangp3010@gmail.com"
-          ),
-        };
-        mailService.send(mailBody);
-      } catch (error) {
-        console.error('Error in sending the mail');
-      }
+          )
+          .replace(new RegExp("{admin}", "g"), "sarangp3010@gmail.com"),
+      };
+      mailService.send(mailBody);
+    } catch (error) {
+      console.error("Error in sending the mail");
+    }
 
-      await cartRepo.delete(cartIds);
+    await cartRepo.delete(cartIds);
 
-      const tokens = grandTotal / 10;
-      const updatedUser = Object.assign({}, user, { totalCredits: (user?.totalCredits || 0) + tokens });
-      await userRepo.save(updatedUser);
+    const tokens = grandTotal / 10;
+    const updatedUser = Object.assign({}, user, {
+      totalCredits: (user?.totalCredits || 0) + tokens,
+    });
+    await userRepo.save(updatedUser);
 
-    res.status(201).json({order, orderDetails});
+    res.status(201).json({ order, orderDetails });
   };

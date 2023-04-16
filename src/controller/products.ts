@@ -17,6 +17,10 @@ export const getProductsValidation = {
     categoryId: Joi.number().integer().optional(),
   }),
 };
+/**
+ * Title: List Products API;
+ * Created By: Sarang Patel;
+ */
 export const getAll =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -50,6 +54,10 @@ export const createProductValidation = {
     completedStep: Joi.number().required(),
   }),
 };
+/**
+ * Title: Create Products API;
+ * Created By: Sarang Patel;
+ */
 export const createProduct =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -100,6 +108,10 @@ export const getProductByIdValidation = {
     id: Joi.string().uuid({ version: "uuidv4" }).required(),
   }),
 };
+/**
+ * Title: Get By Id Products API;
+ * Created By: Sarang Patel;
+ */
 export const getProductById =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -144,6 +156,10 @@ export const updateProductValidation = {
     id: Joi.string().uuid({ version: "uuidv4" }).required(),
   }),
 };
+/**
+ * Title: Update Products API;
+ * Created By: Sarang Patel;
+ */
 export const updateProduct =
   () =>
   async (req: Request, res: Response): Promise<void> => {
@@ -182,17 +198,12 @@ export const updateProduct =
     const inventoryUpdate: any = {};
 
     if (name) productUpdate.name = name;
-    if (description)
-      productUpdate.description = description;
-    if (thumbnailImage)
-      productUpdate.thumbnailImage = thumbnailImage;
-    if (completedStep)
-      product.completedStep = completedStep;
-    if (properties)
-      product.properties = { ...properties };
+    if (description) productUpdate.description = description;
+    if (thumbnailImage) productUpdate.thumbnailImage = thumbnailImage;
+    if (completedStep) product.completedStep = completedStep;
+    if (properties) product.properties = { ...properties };
     if (price) product.price = price;
-    if (discount)
-      product.discount = discount;
+    if (discount) product.discount = discount;
     if (images) product.images = images;
 
     if (brandId)
@@ -204,8 +215,7 @@ export const updateProduct =
         categoryId &&
         (await getManager().getRepository(Category).findOneOrFail(categoryId));
 
-    if (quantity)
-      inventoryUpdate.quantity = quantity;
+    if (quantity) inventoryUpdate.quantity = quantity;
 
     await productsRepository.save({
       id: product?.id,
@@ -233,6 +243,10 @@ export const deleteProductValidation = {
     id: Joi.string().uuid({ version: "uuidv4" }).required(),
   }),
 };
+/**
+ * Title: Delete Products API;
+ * Created By: Sarang Patel;
+ */
 export const removeProduct =
   () =>
   async (req: Request, res: Response): Promise<void> => {
