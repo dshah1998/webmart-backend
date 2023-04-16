@@ -18,6 +18,7 @@ import {
   sellerRequestDecisionValidation,
   sellerRequestDecision,
   updateBecomeSeller,
+  getSellerInfo,
 } from "../controller/users";
 
 const router = Router();
@@ -83,6 +84,8 @@ const postSellerRequestDecision = (): Router => {
     handleError(sellerRequestDecision())
   );
 };
+const getSeller = (): Router =>
+  router.get("/sellerInfo", authenticate, handleError(getSellerInfo()));
 
 export default (): Router =>
   router.use([
@@ -95,4 +98,5 @@ export default (): Router =>
     getAllSellerPendingRequest(),
     postSellerRequestDecision(),
     putBecomeSeller(),
+    getSeller(),
   ]);

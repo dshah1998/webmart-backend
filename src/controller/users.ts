@@ -240,7 +240,6 @@ export const updateBecomeSeller =
     const updateInfo = await query.getOne();
 
     console.log("Update Info", updateInfo);
-    console.log("Update Info", updateInfo.id);
 
     const sellerInformationRepository = await getCustomRepository(
       SellerInformationRepository
@@ -248,6 +247,8 @@ export const updateBecomeSeller =
     let sellerInfo = await sellerInformationRepository.findOne({
       where: { id: updateInfo.id },
     });
+
+    let sellerStatus = false;
 
     if (sellerInfo) {
       await sellerInformationRepository.update(sellerInfo.id, {
@@ -261,6 +262,7 @@ export const updateBecomeSeller =
         accountName,
         routingNumber,
         accountNumber,
+        sellerStatus,
       });
     }
 
@@ -281,16 +283,6 @@ export const updateBecomeSeller =
 export const sellerPendingRequest =
   () =>
   async (req: Request, res: Response): Promise<void> => {
-    // const {
-    //   user: { id },
-    // } = req;
-    // let userInfo = await getCustomRepository(UsersRepository).findOne({
-    //   where: { id },
-    // });
-    // userInfo = Object.assign({}, userInfo, { password: undefined });
-    // res.json(userInfo);
-    console.log("Inside pending Reuqets");
-
     const query = getManager()
       .createQueryBuilder(SellerInformation, "seller")
       .innerJoinAndSelect("seller.user", "user")
@@ -320,8 +312,6 @@ export const sellerRequestDecision =
       body: { message, userId, sellerRequestId, decision },
     } = req;
 
-    console.log("Details ", message, userId, sellerRequestId, decision);
-
     let userInfo = await getCustomRepository(UsersRepository).findOne({
       where: { id: userId },
     });
@@ -335,12 +325,8 @@ export const sellerRequestDecision =
     let userUpdated;
     if (decision === "accepted") {
       if (userInfo) {
-        console.log("Inside userInfo");
-        console.log("UserInfo", userInfo.userType);
-
         userInfo.userType.push("seller");
         userInfo.sellerStatus = true;
-        console.log("UserInfo1", userInfo.userType);
         const usersRepo = await getRepository(Users);
         userUpdated = await usersRepo.save(userInfo);
       }
@@ -358,33 +344,27 @@ export const sellerRequestDecision =
         const sellerUpdated = sellerRepo.save(sellerInfo);
         console.log("Seller Info ---- ", sellerInfo);
         console.log("Seller Updated ---- ", sellerUpdated);
-        console.log("Inside accepted");
         const systemMessage =
           "Congratulations!! Your request to become seller is accepted";
-
-        console.log("Before mail");
 
         await sendMail(userUpdated, systemMessage);
       }
       res.status(201).json(sellerInfo);
     } else {
       if (userInfo) {
-        console.log("Inside userInfo");
-        console.log("UserInfo", userInfo.userType);
-
         userInfo.sellerStatus = null;
-        console.log("UserInfo1", userInfo.userType);
         const usersRepo = await getRepository(Users);
         userUpdated = await usersRepo.save(userInfo);
+
+        await getManager().transaction(async (em) => {
+          await em.delete(SellerInformation, sellerRequestId);
+        });
+        const systemMessage =
+          "Unfortunately!! Your request to become seller is rejected due to " +
+          message;
+        await sendMail(userInfo, systemMessage);
+        res.sendStatus(204);
       }
-      await getManager().transaction(async (em) => {
-        await em.delete(SellerInformation, sellerRequestId);
-      });
-      const systemMessage =
-        "Unfortunately!! Your request to become seller is rejected due to " +
-        message;
-      await sendMail(userInfo, systemMessage);
-      res.sendStatus(204);
     }
   };
 
@@ -402,3 +382,20 @@ const sendMail = async (user: Users, message: string) => {
   };
   await mailService.send(mailBody);
 };
+
+export const getSellerInfo =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user: { id },
+    } = req;
+
+    const seller = await getManager()
+      .createQueryBuilder(SellerInformation, "seller")
+      .innerJoinAndSelect("seller.user", "user")
+      .where("user.id = :id", { id })
+      .getOne();
+
+    console.log("sellerInfo", seller);
+    res.json(seller);
+  };
