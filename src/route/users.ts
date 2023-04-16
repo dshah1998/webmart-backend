@@ -17,6 +17,7 @@ import {
   sellerPendingRequest,
   sellerRequestDecisionValidation,
   sellerRequestDecision,
+  updateBecomeSeller,
 } from "../controller/users";
 
 const router = Router();
@@ -64,6 +65,9 @@ const postBecomeSeller = (): Router => {
   );
 };
 
+const putBecomeSeller = (): Router =>
+  router.put("/become-seller", authenticate, handleError(updateBecomeSeller()));
+
 const getAllSellerPendingRequest = (): Router => {
   return router.get(
     "/pendingSellerRequest",
@@ -90,4 +94,5 @@ export default (): Router =>
     postBecomeSeller(),
     getAllSellerPendingRequest(),
     postSellerRequestDecision(),
+    putBecomeSeller(),
   ]);

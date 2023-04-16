@@ -185,21 +185,86 @@ export const becomeSeller =
       accountNumber,
       user,
     });
-    // let userInfo = await getCustomRepository(UsersRepository).findOne({
-    //   where: { id: user.id },
-    // });
+    let userInfo = await getCustomRepository(UsersRepository).findOne({
+      where: { id: user.id },
+    });
 
-    // if (userInfo) {
-    sellerInfo = await sellerInformationRepository.save(sellerInfo);
-    // }
+    if (userInfo) {
+      sellerInfo = await sellerInformationRepository.save(sellerInfo);
+    }
 
-    // if (sellerInfo) {
-    //   userInfo.userType.push("seller");
-    //   const usersRepo = getRepository(Users);
-    //   const userUpdated = usersRepo.save(userInfo);
-    // }
+    if (sellerInfo) {
+      userInfo.sellerStatus = false;
+      const usersRepo = await getRepository(Users);
+      const userUpdated = await usersRepo.save(userInfo);
+    }
 
     res.status(201).json({
+      companyRegistrationNumber,
+      streetAddress,
+      addressLine2,
+      city,
+      state,
+      zip,
+      storeName,
+      accountName,
+      routingNumber,
+      accountNumber,
+    });
+  };
+
+export const updateBecomeSeller =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      body: {
+        companyRegistrationNumber,
+        streetAddress,
+        addressLine2,
+        city,
+        state,
+        zip,
+        storeName,
+        accountName,
+        routingNumber,
+        accountNumber,
+      },
+    } = req;
+    let id = user.id;
+    const query = getManager()
+      .createQueryBuilder(SellerInformation, "seller")
+      .innerJoinAndSelect("seller.user", "user")
+      .where("user.id = :id", { id });
+
+    const updateInfo = await query.getOne();
+
+    console.log("Update Info", updateInfo);
+    console.log("Update Info", updateInfo.id);
+
+    const sellerInformationRepository = await getCustomRepository(
+      SellerInformationRepository
+    );
+    let sellerInfo = await sellerInformationRepository.findOne({
+      where: { id: updateInfo.id },
+    });
+
+    if (sellerInfo) {
+      await sellerInformationRepository.update(sellerInfo.id, {
+        companyRegistrationNumber,
+        streetAddress,
+        addressLine2,
+        city,
+        state,
+        zip,
+        storeName,
+        accountName,
+        routingNumber,
+        accountNumber,
+      });
+    }
+
+    res.status(200).json({
       companyRegistrationNumber,
       streetAddress,
       addressLine2,
@@ -274,6 +339,7 @@ export const sellerRequestDecision =
         console.log("UserInfo", userInfo.userType);
 
         userInfo.userType.push("seller");
+        userInfo.sellerStatus = true;
         console.log("UserInfo1", userInfo.userType);
         const usersRepo = await getRepository(Users);
         userUpdated = await usersRepo.save(userInfo);
@@ -302,6 +368,15 @@ export const sellerRequestDecision =
       }
       res.status(201).json(sellerInfo);
     } else {
+      if (userInfo) {
+        console.log("Inside userInfo");
+        console.log("UserInfo", userInfo.userType);
+
+        userInfo.sellerStatus = null;
+        console.log("UserInfo1", userInfo.userType);
+        const usersRepo = await getRepository(Users);
+        userUpdated = await usersRepo.save(userInfo);
+      }
       await getManager().transaction(async (em) => {
         await em.delete(SellerInformation, sellerRequestId);
       });
