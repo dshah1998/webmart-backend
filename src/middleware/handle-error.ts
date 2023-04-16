@@ -21,7 +21,7 @@ export const handleError = (handler: RequestHandler): RequestHandler => async (r
      */
     await handler(req, res, next);
   } catch (err) {
-    const { method, originalUrl, body, params, query, user } = req;
+    const { originalUrl, user } = req;
     if (!slientAPIs.includes(originalUrl)) {
       let userToLog = {};
       if (user) {

@@ -3,6 +3,8 @@ import { validate } from "express-validation";
 
 import { authenticate, handleError } from "../middleware";
 import {
+  getAll,
+  getAllUsersValidation,
   changePassword,
   changePasswordValidation,
   forgetPassword,
@@ -17,6 +19,13 @@ import {
 } from "../controller/users";
 
 const router = Router();
+
+const getAllUsers = (): Router =>
+  router.get(
+    "/all",
+    validate(getAllUsersValidation),
+    handleError(getAll())
+  );
 
 const patchChangePassword = (): Router =>
   router.patch(
@@ -50,20 +59,18 @@ const postVerifyEmail = (): Router =>
 const getProfile = (): Router =>
   router.get("/profile/me", authenticate, handleError(profile()));
 
-const postBecomeSeller = (): Router => {
-  console.log("Inside2-------");
-
-  return router.post(
+const postBecomeSeller = (): Router =>
+  router.post(
     "/become-seller",
     validate(becomeSellerValidation, { context: true }),
     authenticate,
     handleError(becomeSeller())
   );
-};
 
 export default (): Router =>
   router.use([
     getProfile(),
+    getAllUsers(),
     postVerifyEmail(),
     postForgetPassword(),
     postUpdatePassword(),
