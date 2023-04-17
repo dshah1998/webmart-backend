@@ -55,6 +55,9 @@ export class Users extends BaseEntity {
   @Column("boolean", { default: () => "true" })
   isActive!: boolean;
 
+  @Column("boolean", { nullable: true })
+  sellerStatus: boolean;
+
   @Column("double precision", { nullable: true })
   totalCredits!: number | null;
 
