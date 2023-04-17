@@ -7,6 +7,7 @@ import { Users } from "../model/Users";
 import { Products } from "../model/Products";
 import { Orders } from "../model/Orders";
 import { SellerInformation } from "../model/SellerInformation";
+import { ModificationRequests } from "../model/ModificationRequests";
 
 export const getAdminDashboard =
   () =>
@@ -41,7 +42,11 @@ export const getAdminDashboard =
       .createQueryBuilder(SellerInformation, "seller")
       .where("seller.sellerStatus = false")
       .getCount();
-
+    
+    const modificationRequest = await getManager()
+      .createQueryBuilder(ModificationRequests, "modificationrequests")
+      .getCount();
+      
     res.status(200).json({
       categoryCount,
       brandsCount,
@@ -50,5 +55,6 @@ export const getAdminDashboard =
       productsCount,
       ordersCount,
       pendingRequest,
+      modificationRequest
     });
   };
