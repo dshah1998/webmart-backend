@@ -27,7 +27,7 @@ export const getAll =
       .leftJoinAndSelect("requests.user", "user")
       .leftJoinAndSelect("requests.product", "product");
 
-    if (!isAdmin) {
+    if (isAdmin === "false") {
       query.where("user.id = :userId", { userId: user?.id });
     }
 
