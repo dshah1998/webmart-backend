@@ -68,6 +68,33 @@ export const createCategory = () => async (req: Request, res: Response): Promise
   res.status(201).json(category);
 };
 
+export const getCategoryByIdValidation = {
+  params: Joi.object({
+    id: Joi.string().uuid({ version: "uuidv4" }).required(),
+  }),
+};
+/**
+ * Title: Get By Id Category API;
+ * Created By: Sarang Patel;
+ */
+export const getCategoryById =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      params: { id },
+    } = req;
+
+    const query = getManager()
+      .createQueryBuilder(Category, "category")
+      .where("category.id = :id", { id });
+
+    const cat = await query.getOne();
+    if (!cat) {
+      throw new BadRequestError("Product not found", "PRODUCT_NOT_FOUND");
+    }
+    res.status(200).json(cat);
+  };
+
 export const updateCategoryValidation = {
   body: Joi.object({
     type: Joi.string().max(255).regex(new RegExp(namePattern)).required(),

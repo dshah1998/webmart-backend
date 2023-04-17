@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { validate } from 'express-validation';
+import { Router } from "express";
+import { validate } from "express-validation";
 
-import { handleError, authenticate,checkUserType } from '../middleware';
+import { handleError, authenticate, checkUserType } from "../middleware";
 import {
   createCategoryValidation,
   createCategory,
@@ -11,44 +11,58 @@ import {
   updateCategory,
   deleteCategoryValidation,
   removeCategory,
-} from '../controller/categories';
+  getCategoryByIdValidation,
+  getCategoryById,
+} from "../controller/categories";
 
-import { WebMartUserType } from '../constants';
+import { WebMartUserType } from "../constants";
 
 const router = Router();
 
 const getAllCategories = (): Router =>
   router.get(
-    '/',
+    "/",
     authenticate,
-    // validate(getCategoriesValidation, { context: true }),
-    handleError(getAll()),
+    handleError(getAll())
   );
 
 const postCreateCategory = (): Router =>
   router.post(
-    '/',
+    "/",
     authenticate,
     checkUserType(WebMartUserType.ADMIN),
     validate(createCategoryValidation, { context: true }),
-    handleError(createCategory()),
+    handleError(createCategory())
   );
 
 const putupdateCategory = (): Router =>
   router.put(
-    '/:id',
+    "/:id",
     authenticate,
     validate(updateCategoryValidation, { context: true }),
-    handleError(updateCategory()),
+    handleError(updateCategory())
+  );
+
+const getByIdCategory = (): Router =>
+  router.get(
+    "/:id",
+    validate(getCategoryByIdValidation, { context: true }),
+    handleError(getCategoryById())
   );
 
 const deleteCcategory = (): Router =>
   router.delete(
-    '/:id',
+    "/:id",
     authenticate,
     // validate(deleteCategoryValidation),
-    handleError(removeCategory()),
+    handleError(removeCategory())
   );
 
 export default (): Router =>
-  router.use([getAllCategories(), postCreateCategory(), putupdateCategory(), deleteCcategory()]);
+  router.use([
+    getAllCategories(),
+    getByIdCategory(),
+    postCreateCategory(),
+    putupdateCategory(),
+    deleteCcategory(),
+  ]);
