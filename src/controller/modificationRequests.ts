@@ -18,14 +18,20 @@ import { ModificationRequests } from "../model/ModificationRequests";
 export const getAll =
   () =>
   async (req: Request, res: Response): Promise<void> => {
-    const { user } = req;
-    const [notifications, count] = await getManager()
+    const {
+      user,
+      query: { isAdmin },
+    } = req;
+    const query = getManager()
       .createQueryBuilder(ModificationRequests, "requests")
       .leftJoinAndSelect("requests.user", "user")
-      .where("user.id = :userId", { userId: user?.id })
-      .leftJoinAndSelect("requests.product", "product")
-      .getManyAndCount();
+      .leftJoinAndSelect("requests.product", "product");
 
+    if (!isAdmin) {
+      query.where("user.id = :userId", { userId: user?.id });
+    }
+
+    const [notifications, count] = await query.getManyAndCount();
     res.status(200).json({ count, notifications });
   };
 
@@ -33,7 +39,7 @@ export const createNotificationValidation = {
   body: Joi.object({
     comments: Joi.string().max(255).required(),
     productId: Joi.string().uuid({ version: "uuidv4" }).required(),
-    status: Joi.string().default("pending")
+    status: Joi.string().default("pending"),
   }),
 };
 export const createNotification =
@@ -57,20 +63,22 @@ export const createNotification =
     }
 
     let newRequest = requestRepository.create({
-        product: productId && (await getManager().getRepository(Products).findOneOrFail(productId)),
-        user,
-        comments,
-        status
-      });
+      product:
+        productId &&
+        (await getManager().getRepository(Products).findOneOrFail(productId)),
+      user,
+      comments,
+      status,
+    });
 
-      newRequest = await requestRepository.save(newRequest);
+    newRequest = await requestRepository.save(newRequest);
 
     res.status(201).json(newRequest);
   };
 
 export const updateRequestValidation = {
   body: Joi.object({
-    status: Joi.string().default("pending").required()
+    status: Joi.string().default("pending").required(),
   }),
 };
 export const updateRequest =
@@ -81,9 +89,11 @@ export const updateRequest =
       params: { id },
     } = req;
 
-    const notificationRepository = getCustomRepository(ModificationRequestsRepository);
+    const notificationRepository = getCustomRepository(
+      ModificationRequestsRepository
+    );
     await notificationRepository.update(id, {
-        status
+      status,
     });
 
     res.sendStatus(204);
