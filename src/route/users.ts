@@ -17,18 +17,19 @@ import {
   becomeSeller,
   becomeSellerValidation,
   deleteUserValidation,
-  removeUser
+  removeUser,
+  sellerPendingRequest,
+  sellerRequestDecisionValidation,
+  sellerRequestDecision,
+  updateBecomeSeller,
+  getSellerInfo,
 } from "../controller/users";
-import { WebMartUserType } from '../constants';
+import { WebMartUserType } from "../constants";
 
 const router = Router();
 
 const getAllUsers = (): Router =>
-  router.get(
-    "/all",
-    validate(getAllUsersValidation),
-    handleError(getAll())
-  );
+  router.get("/all", validate(getAllUsersValidation), handleError(getAll()));
 
 const patchChangePassword = (): Router =>
   router.patch(
@@ -70,14 +71,35 @@ const postBecomeSeller = (): Router =>
     handleError(becomeSeller())
   );
 
-  const deleteUser = (): Router =>
+const deleteUser = (): Router =>
   router.delete(
-    '/:id',
+    "/:id",
     authenticate,
     checkUserType(WebMartUserType.ADMIN),
     validate(deleteUserValidation, { context: true }),
-    handleError(removeUser()),
+    handleError(removeUser())
   );
+
+const putBecomeSeller = (): Router =>
+  router.put("/become-seller", authenticate, handleError(updateBecomeSeller()));
+
+const getAllSellerPendingRequest = (): Router => {
+  return router.get(
+    "/pendingSellerRequest",
+    handleError(sellerPendingRequest())
+  );
+};
+
+const postSellerRequestDecision = (): Router => {
+  return router.post(
+    "/sellerRequestDecision",
+    validate(sellerRequestDecisionValidation, { context: true }),
+    authenticate,
+    handleError(sellerRequestDecision())
+  );
+};
+const getSeller = (): Router =>
+  router.get("/sellerInfo", authenticate, handleError(getSellerInfo()));
 
 export default (): Router =>
   router.use([
@@ -89,4 +111,8 @@ export default (): Router =>
     postUpdatePassword(),
     patchChangePassword(),
     postBecomeSeller(),
+    getAllSellerPendingRequest(),
+    postSellerRequestDecision(),
+    putBecomeSeller(),
+    getSeller(),
   ]);

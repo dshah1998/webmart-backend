@@ -47,6 +47,9 @@ export class SellerInformation extends BaseEntity {
   @Column("varchar", { nullable: true })
   routingNumber: string;
 
+  @Column("boolean", { default: () => "false" })
+  sellerStatus: boolean;
+
   @OneToOne(() => Users)
   @JoinColumn()
   user: Users;
