@@ -16,6 +16,9 @@ import { UsersRepository } from "../repository/Users";
 import { Users } from "../model/Users";
 import { WebMartUserType } from "../constants";
 import { SellerInformationRepository } from "../repository/SellerInformation";
+import { SellerInformation } from "../model/SellerInformation";
+import { MailService } from "../service/Mail";
+import { sellerMessage } from "../database/seed/htmlTemplates/register";
 
 export const getAllUsersValidation = {
   query: Joi.object({
@@ -142,6 +145,7 @@ export const profile =
     let userInfo = await getCustomRepository(UsersRepository).findOne({
       where: { id },
     });
+    console.log("UserInfo", userInfo);
 
     userInfo = Object.assign({}, userInfo, { password: undefined });
     res.json(userInfo);
@@ -256,9 +260,9 @@ export const becomeSeller =
     }
 
     if (sellerInfo) {
-      userInfo.userType.push("seller");
-      const usersRepo = getRepository(Users);
-      const userUpdated = usersRepo.save(userInfo);
+      userInfo.sellerStatus = false;
+      const usersRepo = await getRepository(Users);
+      const userUpdated = await usersRepo.save(userInfo);
     }
 
     res.status(201).json({
@@ -275,39 +279,225 @@ export const becomeSeller =
     });
   };
 
-  export const deleteUserValidation = {
-    params: Joi.object({
-      id: Joi.string().uuid({ version: "uuidv4" }).required(),
-    }),
+export const deleteUserValidation = {
+  params: Joi.object({
+    id: Joi.string().uuid({ version: "uuidv4" }).required(),
+  }),
+};
+/**
+ * Title: Delete Users API;
+ * Created By: Sarang Patel;
+ */
+export const removeUser =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      params: { id },
+    } = req;
+
+    const userRepo = getRepository(Users);
+    const user = await userRepo.findOne(id);
+
+    if (!user) {
+      throw new BadRequestError(
+        "User is already deleted",
+        "USER_ALREADY_DELETED"
+      );
+    }
+
+    try {
+      await userRepo.delete(id);
+    } catch (error) {
+      throw new BadRequestError(
+        "Something went wrong in deletation of the User",
+        "USER_ERROR_DELETE"
+      );
+    }
+    res.sendStatus(204);
   };
-  /**
-   * Title: Delete Users API;
-   * Created By: Sarang Patel;
-   */
-  export const removeUser =
-    () =>
-    async (req: Request, res: Response): Promise<void> => {
-      const {
-        params: { id },
-      } = req;
-  
-      const userRepo = getRepository(Users);
-      const user = await userRepo.findOne(id);
-  
-      if (!user) {
-        throw new BadRequestError(
-          "User is already deleted",
-          "USER_ALREADY_DELETED"
-        );
+export const updateBecomeSeller =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      body: {
+        companyRegistrationNumber,
+        streetAddress,
+        addressLine2,
+        city,
+        state,
+        zip,
+        storeName,
+        accountName,
+        routingNumber,
+        accountNumber,
+      },
+    } = req;
+    let id = user.id;
+    const query = getManager()
+      .createQueryBuilder(SellerInformation, "seller")
+      .innerJoinAndSelect("seller.user", "user")
+      .where("user.id = :id", { id });
+
+    const updateInfo = await query.getOne();
+
+    console.log("Update Info", updateInfo);
+
+    const sellerInformationRepository = await getCustomRepository(
+      SellerInformationRepository
+    );
+    let sellerInfo = await sellerInformationRepository.findOne({
+      where: { id: updateInfo.id },
+    });
+
+    let sellerStatus = false;
+
+    if (sellerInfo) {
+      await sellerInformationRepository.update(sellerInfo.id, {
+        companyRegistrationNumber,
+        streetAddress,
+        addressLine2,
+        city,
+        state,
+        zip,
+        storeName,
+        accountName,
+        routingNumber,
+        accountNumber,
+        sellerStatus,
+      });
+    }
+
+    res.status(200).json({
+      companyRegistrationNumber,
+      streetAddress,
+      addressLine2,
+      city,
+      state,
+      zip,
+      storeName,
+      accountName,
+      routingNumber,
+      accountNumber,
+    });
+  };
+
+export const sellerPendingRequest =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const query = getManager()
+      .createQueryBuilder(SellerInformation, "seller")
+      .innerJoinAndSelect("seller.user", "user")
+      .where("seller.sellerStatus = false");
+
+    const [pendingRequest, count] = await query.getManyAndCount();
+
+    console.log("Pending Reuqest", pendingRequest);
+
+    res.status(200).json({ pendingRequest });
+  };
+
+export const sellerRequestDecisionValidation = {
+  body: Joi.object({
+    message: Joi.string().optional(),
+    userId: Joi.string().required(),
+    sellerRequestId: Joi.string().required(),
+    decision: Joi.string().required(),
+  }),
+};
+
+export const sellerRequestDecision =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user,
+      body: { message, userId, sellerRequestId, decision },
+    } = req;
+
+    let userInfo = await getCustomRepository(UsersRepository).findOne({
+      where: { id: userId },
+    });
+
+    // if (userInfo) {
+    //   sellerInfo = await sellerInformationRepository.save(sellerInfo);
+    // }
+
+    console.log("UserInfo ----", userInfo);
+
+    let userUpdated;
+    if (decision === "accepted") {
+      if (userInfo) {
+        userInfo.userType.push("seller");
+        userInfo.sellerStatus = true;
+        const usersRepo = await getRepository(Users);
+        userUpdated = await usersRepo.save(userInfo);
       }
-  
-      try {
-        await userRepo.delete(id);
-      } catch (error) {
-        throw new BadRequestError(
-          "Something went wrong in deletation of the User",
-          "USER_ERROR_DELETE"
-        );
+
+      console.log("UserUpdated ---- ", userUpdated);
+      let sellerInfo;
+      if (userUpdated) {
+        sellerInfo = await getCustomRepository(
+          SellerInformationRepository
+        ).findOne({
+          where: { id: sellerRequestId },
+        });
+        sellerInfo.sellerStatus = true;
+        const sellerRepo = await getRepository(SellerInformation);
+        const sellerUpdated = sellerRepo.save(sellerInfo);
+        console.log("Seller Info ---- ", sellerInfo);
+        console.log("Seller Updated ---- ", sellerUpdated);
+        const systemMessage =
+          "Congratulations!! Your request to become seller is accepted";
+
+        await sendMail(userUpdated, systemMessage);
       }
-      res.sendStatus(204);
-    };
+      res.status(201).json(sellerInfo);
+    } else {
+      if (userInfo) {
+        userInfo.sellerStatus = null;
+        const usersRepo = await getRepository(Users);
+        userUpdated = await usersRepo.save(userInfo);
+
+        await getManager().transaction(async (em) => {
+          await em.delete(SellerInformation, sellerRequestId);
+        });
+        const systemMessage =
+          "Unfortunately!! Your request to become seller is rejected due to " +
+          message;
+        await sendMail(userInfo, systemMessage);
+        res.sendStatus(204);
+      }
+    }
+  };
+
+const sendMail = async (user: Users, message: string) => {
+  const mailService = new MailService();
+  const mailBody = {
+    to: user.email,
+    subject: "Become Seller Status | WebMart",
+    html: (sellerMessage || "")
+      .replace(
+        new RegExp("{name}", "g"),
+        `${user?.firstName} ${user?.lastName}` || ""
+      )
+      .replace(new RegExp("{message}", "g"), message || ""),
+  };
+  await mailService.send(mailBody);
+};
+
+export const getSellerInfo =
+  () =>
+  async (req: Request, res: Response): Promise<void> => {
+    const {
+      user: { id },
+    } = req;
+
+    const seller = await getManager()
+      .createQueryBuilder(SellerInformation, "seller")
+      .innerJoinAndSelect("seller.user", "user")
+      .where("user.id = :id", { id })
+      .getOne();
+
+    console.log("sellerInfo", seller);
+    res.json(seller);
+  };
