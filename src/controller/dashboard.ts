@@ -6,6 +6,7 @@ import { Brand } from "../model/Brand";
 import { Users } from "../model/Users";
 import { Products } from "../model/Products";
 import { Orders } from "../model/Orders";
+import { OrderDetails } from "../model/OrderDetails";
 import { SellerInformation } from "../model/SellerInformation";
 import { ModificationRequests } from "../model/ModificationRequests";
 
@@ -35,7 +36,7 @@ export const getAdminDashboard =
       .getCount();
 
     const ordersCount = await getManager()
-      .createQueryBuilder(Orders, "order")
+      .createQueryBuilder(OrderDetails, "order")
       .getCount();
 
     const pendingRequest = await getManager()
