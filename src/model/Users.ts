@@ -6,12 +6,13 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import { Address } from "./Address";
-import { Cards } from "./Cards";
-import { Inventory } from "./Inventory";
-import { Orders } from "./Orders";
-import { WebMartUserType } from "../constants";
-import { Carts } from "./Cart";
+import { Address } from './Address';
+import { Cards } from './Cards';
+import { Inventory } from './Inventory';
+import { Orders } from './Orders';
+import { WebMartUserType } from '../constants';
+import { Carts } from './Cart';
+import { ModificationRequests } from "./ModificationRequests";
 
 @Entity("users", { schema: "public" })
 export class Users extends BaseEntity {
@@ -68,6 +69,9 @@ export class Users extends BaseEntity {
 
   @OneToMany(() => Carts, (carts) => carts.user)
   carts!: Carts[];
+
+  @OneToMany(() => ModificationRequests, (modificationRequests) => modificationRequests.user)
+  modificationRequests!: ModificationRequests[];
 
   @OneToMany(() => Inventory, (inventory) => inventory.user)
   inventory!: Inventory[];

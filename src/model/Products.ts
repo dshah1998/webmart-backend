@@ -16,6 +16,7 @@ import { Inventory } from "./Inventory";
 import { Category } from "./Category";
 import { Brand } from "./Brand";
 import { Carts } from "./Cart";
+import { ModificationRequests } from "./ModificationRequests";
 import { OrderDetails } from "./OrderDetails";
 
 @Entity("products", { schema: "public" })
@@ -70,6 +71,9 @@ export class Products extends BaseEntity {
 
   @OneToMany(() => Carts, (cart) => cart.product)
   cart!: Carts[];
+
+  @OneToMany(() => ModificationRequests, (modificationRequests) => modificationRequests.user)
+  modificationRequests!: ModificationRequests[];
 
   @OneToMany(() => OrderDetails, (ODetails) => ODetails.product)
   orderDetails!: OrderDetails[];
