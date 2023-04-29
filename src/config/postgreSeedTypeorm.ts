@@ -3,7 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 import config from '../config';
 
-const baseFolder = config.isProd ? '' : 'src/';
+const baseFolder = config.isProd ? 'dist/' : 'src/';
 
 const typeormConfig = {
   type: config.POSTGRES_CONNECTION,

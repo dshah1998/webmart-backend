@@ -1,7 +1,7 @@
 {
   "name": "webmart-backend",
   "version": "0.3.0",
-  "description": "Awesome project developed with TypeORM.",
+  "description": "Webmart backend service",
   "main": "dist/server.js",
   "type": "commonjs",
   "devDependencies": {
@@ -49,6 +49,7 @@
   "scripts": {
     "start": "pm2 start webmart.json",
     "stop": "pm2 stop webmart.json",
+    "docker:start": "pm2-runtime webmart.json",
     "ts-node": "node -r ts-node/register/transpile-only src/server.ts",
     "dev": "nodemon",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js --config src/config/postgreSeedTypeorm.ts",
