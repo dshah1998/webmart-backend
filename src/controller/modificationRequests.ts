@@ -37,7 +37,7 @@ export const getAll =
 
 export const createNotificationValidation = {
   body: Joi.object({
-    comments: Joi.string().max(255).required(),
+    comments: Joi.string().max(255).optional(),
     productId: Joi.string().uuid({ version: "uuidv4" }).required(),
     status: Joi.string().default("pending"),
   }),

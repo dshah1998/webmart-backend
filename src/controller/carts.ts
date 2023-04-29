@@ -59,6 +59,7 @@ export const createCartValidation = {
   body: Joi.object({
     productId: Joi.string().required(),
     quantity: Joi.number().required(),
+    comment: Joi.string().optional().default(null),
   }),
 };
 
@@ -70,6 +71,7 @@ export const createCart =
       body: {
         productId,
         quantity,
+        comment
       },
     } = req;
 
@@ -78,6 +80,7 @@ export const createCart =
     let newCart = cartRepo.create({
       product: productId && (await getManager().getRepository(Products).findOneOrFail(productId)),
       quantity,
+      comment,
       user
     });
 

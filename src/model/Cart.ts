@@ -22,6 +22,9 @@ import { Products } from "./Products";
     @Column("integer", { nullable: true })
     quantity!: number | null;
 
+    @Column("varchar", { nullable: true })
+    comment!: string | null;
+
     @Index()
     @ManyToOne(() => Users, (users) => users.carts)
     user!: Users;
