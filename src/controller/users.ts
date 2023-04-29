@@ -56,6 +56,9 @@ export const getAll =
             })
             .orWhere("user.lastName like :fullName", {
               fullName: "%" + search + "%",
+            })
+            .orWhere("user.email like :fullName", {
+              fullName: "%" + search + "%",
             });
         })
       );
@@ -145,7 +148,6 @@ export const profile =
     let userInfo = await getCustomRepository(UsersRepository).findOne({
       where: { id },
     });
-    console.log("UserInfo", userInfo);
 
     userInfo = Object.assign({}, userInfo, { password: undefined });
     res.json(userInfo);

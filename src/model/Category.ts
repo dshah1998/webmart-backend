@@ -16,7 +16,7 @@ export class Category extends BaseEntity {
   type!: string;
 
   @Column("text", { array: true ,nullable: true })
-  properties: string | null;
+  properties: string[] | null;
 
   @OneToMany(() => Products, (product) => product.category)
   products!: Products;

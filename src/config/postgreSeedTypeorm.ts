@@ -3,7 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 import config from '../config';
 
-const baseFolder = config.isProd ? '' : 'src/';
+const baseFolder = config.isProd ? 'dist/' : 'src/';
 
 const typeormConfig = {
   type: config.POSTGRES_CONNECTION,
@@ -18,12 +18,12 @@ const typeormConfig = {
   namingStrategy: new SnakeNamingStrategy(),
   migrationsTableName: 'seed',
   migrationsTransactionMode: 'each',
-  // ssl: true,
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false
-  //   }
-  // },
+  ssl: true,
+  extra: {
+    ssl: {
+      rejectUnauthorized: false
+    }
+  },
   entities: [`${baseFolder}model/*{.js,.ts}`],
   migrations: [`${baseFolder}database/seed/*{.js,.ts}`],
   subscribers: [`${baseFolder}database/subscriber/**/*{.js,.ts}`],
