@@ -1,6 +1,6 @@
 {
   "name": "webmart-backend",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "Awesome project developed with TypeORM.",
   "main": "dist/server.js",
   "type": "commonjs",

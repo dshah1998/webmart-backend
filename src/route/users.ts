@@ -66,8 +66,8 @@ const getProfile = (): Router =>
 const postBecomeSeller = (): Router =>
   router.post(
     "/become-seller",
-    validate(becomeSellerValidation, { context: true }),
     authenticate,
+    validate(becomeSellerValidation, { context: true }),
     handleError(becomeSeller())
   );
 
