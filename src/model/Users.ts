@@ -3,6 +3,7 @@ import {
   Entity,
   OneToMany,
   BaseEntity,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -10,6 +11,7 @@ import { Address } from './Address';
 import { Cards } from './Cards';
 import { Inventory } from './Inventory';
 import { Orders } from './Orders';
+import { SellerInformation } from './SellerInformation';
 import { WebMartUserType } from '../constants';
 import { Carts } from './Cart';
 import { ModificationRequests } from "./ModificationRequests";
@@ -78,4 +80,9 @@ export class Users extends BaseEntity {
 
   @OneToMany(() => Orders, (order) => order.user)
   orders!: Orders[];
+
+  @OneToOne(() => SellerInformation, (seller) => seller.user, {
+    onDelete: "CASCADE",
+  })
+  seller!: SellerInformation;
 }

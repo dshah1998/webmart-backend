@@ -49,12 +49,17 @@ export class Products extends BaseEntity {
   completedStep!: number;
 
   @Column("simple-json", { nullable: true })
-  properties: {
-    weight: number | null;
-    color: string | null; 
-  } | null;
+  properties:
+    | {
+        weight: number | null;
+        color: string | null;
+      }
+    | null
+    | any;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.product, { onDelete: 'CASCADE' })
+  @OneToOne(() => Inventory, (inventory) => inventory.product, {
+    onDelete: "CASCADE",
+  })
   inventory!: Inventory;
 
   @ManyToOne(() => Brand, (brand) => brand.product)
@@ -63,7 +68,9 @@ export class Products extends BaseEntity {
   @RelationId((product: Products) => product.brand)
   brandId!: string | null;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  @ManyToOne(() => Category, (category) => category.products, {
+    onDelete: "SET NULL",
+  })
   category!: Category | null;
 
   @RelationId((product: Products) => product.category)
@@ -72,7 +79,11 @@ export class Products extends BaseEntity {
   @OneToMany(() => Carts, (cart) => cart.product)
   cart!: Carts[];
 
-  @OneToMany(() => ModificationRequests, (modificationRequests) => modificationRequests.user)
+  @OneToMany(
+    () => ModificationRequests,
+    (modificationRequests) => modificationRequests.user,
+    { onDelete: "CASCADE" }
+  )
   modificationRequests!: ModificationRequests[];
 
   @OneToMany(() => OrderDetails, (ODetails) => ODetails.product)

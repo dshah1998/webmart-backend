@@ -50,7 +50,7 @@ export class SellerInformation extends BaseEntity {
   @Column("boolean", { default: () => "false" })
   sellerStatus: boolean;
 
-  @OneToOne(() => Users)
+  @OneToOne(() => Users, (user) => user.seller, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: Users;
 }
